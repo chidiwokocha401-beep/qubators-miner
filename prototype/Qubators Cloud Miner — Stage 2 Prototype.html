@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Qubators Cloud Miner — Stage 2</title>
+<style>
+:root{
+  --bg:#0f1216; --card:#171b21; --border:#262c35; --text:#e9edf2; --muted:#9aa4b2;
+  --accent:#f7931a; --accent2:#3ddc97; --danger:#e05252;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: light){ :root:not([data-theme="dark"]){ --bg:#f7f8fa; --card:#fff; --border:#e3e6ea; --text:#1a1d22; --muted:#5b6572; } }
+:root[data-theme="light"]{ --bg:#f7f8fa; --card:#fff; --border:#e3e6ea; --text:#1a1d22; --muted:#5b6572; }
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,Segoe UI,Roboto,sans-serif;min-height:100%;}
+.wrap{max-width:760px;margin:0 auto;padding:28px 20px 60px;}
+.disclaimer{background:#3a2a12;color:#f7c98a;border:1px solid #6b4a1f;border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:20px;}
+h1{font-size:22px;margin:0 0 4px}
+.sub{color:var(--muted);font-size:14px;margin-bottom:24px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:18px;}
+.card h2{font-size:16px;margin:0 0 10px}
+.row{display:flex;flex-wrap:wrap;gap:16px;margin-top:10px}
+.field{flex:1;min-width:140px}
+.field label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px}
+.field input,.field select{width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:14px}
+.results{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:14px}
+.result{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center}
+.result .v{font-size:16px;font-weight:600}
+.result .l{font-size:11px;color:var(--muted)}
+.result.warn .v{color:var(--danger)}
+.result.good .v{color:var(--accent2)}
+.timeline{position:relative;height:60px;margin-top:16px;border-bottom:1px solid var(--border)}
+.halving{position:absolute;bottom:0;width:2px;background:var(--accent);height:40px}
+.halving span{position:absolute;bottom:44px;font-size:10px;color:var(--muted);left:-20px;width:40px;text-align:center}
+.quiz label{display:block;padding:8px 10px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;font-size:14px}
+.quiz label.correct{border-color:var(--accent2);background:rgba(61,220,151,.1)}
+.quiz label.wrong{border-color:var(--danger);background:rgba(224,82,82,.1)}
+.badge{display:inline-block;background:var(--accent2);color:#062;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;margin-top:10px}
+/* Navigation */
+.nav{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.nav a{padding:6px 14px;border-radius:20px;font-size:13px;text-decoration:none;color:var(--muted);border:1px solid var(--border)}
+.nav a.active{background:var(--accent);color:#1a1206;border-color:var(--accent);font-weight:600}
+.nav a:hover:not(.active){border-color:var(--accent);color:var(--accent)}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error-box{background:rgba(224,82,82,.1);border:1px solid var(--danger);color:var(--danger);border-radius:8px;padding:10px 14px;font-size:13px;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="disclaimer">⚠️ Educational simulation only. No real Bitcoin mining occurs and no cryptocurrency is earned or exchanged.</div>
+  <h1>Qubators Cloud Miner</h1>
+  <div class="sub">Stage 2 of 3 · Economics — electricity, ROI, break-even & halving</div>
+
+  <nav class="nav">
+    <a href="Qubators Cloud Miner — Stage 1 Prototype.html">Stage 1: Basics</a>
+    <a href="Qubators Cloud Miner — Stage 2 Prototype.html" class="active">Stage 2: Economics</a>
+    <a href="Qubators Cloud Miner — Stage 3 Prototype.html">Stage 3: Network</a>
+  </nav>
+
+  <div class="card">
+    <h2>1. The real cost of mining</h2>
+    <p style="font-size:14px;line-height:1.5">Hardware isn't free to run — it draws power 24/7. Whether mining is profitable depends on your <b>hash rate</b>, your <b>electricity price</b>, and the current <b>BTC price</b>. Try adjusting the numbers below.</p>
+  </div>
+
+  <div class="card">
+    <h2>2. ROI &amp; break-even calculator</h2>
+    <div class="row">
+      <div class="field">
+        <label>Rig</label>
+        <select id="rigSelect">
+          <option value="0">Antminer S19 XP (140 TH/s, 3010W)</option>
+          <option value="1">Whatsminer M50S (126 TH/s, 3276W)</option>
+          <option value="2">Antminer S9 (legacy) (14 TH/s, 1372W)</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Rig price (USD)</label><input id="price" type="number" value="2200"></div>
+      <div class="field"><label>Electricity ($/kWh)</label><input id="kwh" type="number" step="0.01" value="0.12"></div>
+      <div class="field"><label>BTC price (USD)</label><input id="btc" type="number" value="109200"></div>
+    </div>
+    <div class="results" id="results"></div>
+  </div>
+
+  <div class="card">
+    <h2>3. The halving</h2>
+    <p style="font-size:14px;line-height:1.5">Roughly every 4 years, the block reward is cut in half — this is the "halving." It directly cuts new miner revenue overnight unless price or efficiency compensates.</p>
+    <div class="timeline" id="timeline"></div>
+  </div>
+
+  <div class="card quiz">
+    <h2>4. Quick check</h2>
+    <p style="font-size:14px">If electricity costs more than your rig earns per day, what happens to your profit?</p>
+    <div id="quizOptions"></div>
+    <div id="quizFeedback" style="font-size:13px;margin-top:8px"></div>
+  </div>
+
+  <div id="badgeArea"></div>
+</div>
+
+<script>
+const RIGS = [
+  {name:"Antminer S19 XP", hash:140, power:3010, price:2200},
+  {name:"Whatsminer M50S", hash:126, power:3276, price:1900},
+  {name:"Antminer S9 (legacy)", hash:14, power:1372, price:120},
+];
+const NET_HASH_TH = 740e6, BLOCKS_DAY = 450, REWARD = 3.125;
+let marketData = null;
+
+async function fetchMarketData(){
+  try {
+    const res = await fetch('/api/market-data');
+    if (!res.ok) throw new Error('API error');
+    marketData = await res.json();
+    if (marketData.btc_price) {
+      document.getElementById('btc').value = marketData.btc_price;
+    }
+    calc();
+  } catch(e) {
+    console.warn('Live data unavailable, using sample values');
+  }
+}
+
+function calc(){
+  const rigIdx = parseInt(document.getElementById('rigSelect').value) || 0;
+  const rig = RIGS[rigIdx];
+  const price = parseFloat(document.getElementById('price').value)||0;
+  const kwh = parseFloat(document.getElementById('kwh').value)||0;
+  const btc = parseFloat(document.getElementById('btc').value)||0;
+
+  const share = rig.hash / NET_HASH_TH;
+  const dailyBTC = share * BLOCKS_DAY * REWARD;
+  const dailyRevenue = dailyBTC * btc;
+  const dailyPowerCost = (rig.power/1000)*24*kwh;
+  const dailyProfit = dailyRevenue - dailyPowerCost;
+  const breakEvenDays = dailyProfit > 0 ? price / dailyProfit : Infinity;
+
+  const results = document.getElementById('results');
+  results.innerHTML = `
+    <div class="result"><div class="v">$${dailyRevenue.toFixed(2)}</div><div class="l">Est. daily revenue</div></div>
+    <div class="result"><div class="v">$${dailyPowerCost.toFixed(2)}</div><div class="l">Daily power cost</div></div>
+    <div class="result ${dailyProfit>=0?'good':'warn'}"><div class="v">$${dailyProfit.toFixed(2)}</div><div class="l">Daily profit</div></div>
+    <div class="result"><div class="v">${isFinite(breakEvenDays)?Math.round(breakEvenDays)+' days':'never'}</div><div class="l">Break-even</div></div>
+  `;
+}
+['rigSelect','price','kwh','btc'].forEach(id=>document.getElementById(id).addEventListener('input', calc));
+
+// halving timeline
+const tl = document.getElementById('timeline');
+const halvings = [{y:2012,r:'50→25'},{y:2016,r:'25→12.5'},{y:2020,r:'12.5→6.25'},{y:2024,r:'6.25→3.125'},{y:2028,r:'3.125→1.5625 (next)'}];
+halvings.forEach((h,i)=>{
+  const d = document.createElement('div');
+  d.className='halving';
+  d.style.left = (i*22+5)+'%';
+  d.innerHTML = `<span>${h.y}<br>${h.r}</span>`;
+  tl.appendChild(d);
+});
+
+const QUIZ = { options:[
+  {t:"Profit turns negative — you're losing money running the rig", correct:true},
+  {t:"Nothing — mining is always profitable", correct:false},
+  {t:"You get refunded the difference automatically", correct:false},
+]};
+function renderQuiz(){
+  const el = document.getElementById('quizOptions');
+  QUIZ.options.forEach(o=>{
+    const l = document.createElement('label');
+    l.textContent = o.t;
+    l.onclick = ()=>{
+      [...el.children].forEach(c=>c.classList.remove('correct','wrong'));
+      l.classList.add(o.correct?'correct':'wrong');
+      document.getElementById('quizFeedback').textContent = o.correct
+        ? "Correct! If power cost exceeds revenue, you're paying to mine at a loss."
+        : "Not quite — think about what happens when costs exceed revenue.";
+      if(o.correct) showBadge();
+    };
+    el.appendChild(l);
+  });
+}
+function showBadge(){
+  const el = document.getElementById('badgeArea');
+  if(el.dataset.shown) return;
+  el.dataset.shown = "1";
+  el.innerHTML = `<div class="badge">🏅 Stage 2 badge earned — Economics complete!</div>`;
+  try{ localStorage.setItem('qubators_stage2_complete','1'); }catch(e){}
+}
+
+// --- Init ---
+fetchMarketData();
+renderQuiz();
+</script>
+</body>
+</html>

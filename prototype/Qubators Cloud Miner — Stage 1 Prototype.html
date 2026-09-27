@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Qubators Cloud Miner — Stage 1</title>
+<style>
+:root{
+  --bg:#0f1216; --card:#171b21; --border:#262c35; --text:#e9edf2; --muted:#9aa4b2;
+  --accent:#f7931a; --accent2:#3ddc97; --danger:#e05252;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){ --bg:#f7f8fa; --card:#fff; --border:#e3e6ea; --text:#1a1d22; --muted:#5b6572; }
+}
+:root[data-theme="light"]{ --bg:#f7f8fa; --card:#fff; --border:#e3e6ea; --text:#1a1d22; --muted:#5b6572; }
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,Segoe UI,Roboto,sans-serif;min-height:100%;}
+.wrap{max-width:760px;margin:0 auto;padding:28px 20px 60px;}
+.disclaimer{background:#3a2a12;color:#f7c98a;border:1px solid #6b4a1f;border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:20px;}
+h1{font-size:22px;margin:0 0 4px}
+.sub{color:var(--muted);font-size:14px;margin-bottom:24px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:18px;}
+.card h2{font-size:16px;margin:0 0 10px}
+.livebar{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.livebar b{color:var(--text)}
+.rigs{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.rig{border:1px solid var(--border);border-radius:10px;padding:10px;width:150px;font-size:12px;cursor:pointer;background:transparent;color:var(--text);text-align:left}
+.rig.selected{border-color:var(--accent);background:rgba(247,147,26,.08)}
+.rig b{display:block;font-size:13px;margin-bottom:4px}
+.farm{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;min-height:30px}
+.block{width:24px;height:24px;border-radius:4px;background:var(--accent)}
+.results{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:14px}
+.result{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center}
+.result .v{font-size:16px;font-weight:600}
+.result .l{font-size:11px;color:var(--muted)}
+.quiz label{display:block;padding:8px 10px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;font-size:14px}
+.quiz label.correct{border-color:var(--accent2);background:rgba(61,220,151,.1)}
+.quiz label.wrong{border-color:var(--danger);background:rgba(224,82,82,.1)}
+button.action{background:var(--accent);color:#1a1206;border:none;border-radius:8px;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;margin-top:10px}
+.badge{display:inline-block;background:var(--accent2);color:#062;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;margin-top:10px}
+/* Navigation */
+.nav{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.nav a{padding:6px 14px;border-radius:20px;font-size:13px;text-decoration:none;color:var(--muted);border:1px solid var(--border)}
+.nav a.active{background:var(--accent);color:#1a1206;border-color:var(--accent);font-weight:600}
+.nav a:hover:not(.active){border-color:var(--accent);color:var(--accent)}
+/* Loading & error states */
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error-box{background:rgba(224,82,82,.1);border:1px solid var(--danger);color:var(--danger);border-radius:8px;padding:10px 14px;font-size:13px;margin-top:10px}
+.loading-box{color:var(--muted);font-size:13px;margin-top:10px;display:flex;align-items:center;gap:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="disclaimer">⚠️ Educational simulation only. No real Bitcoin mining occurs and no cryptocurrency is earned or exchanged.</div>
+  <h1>Qubators Cloud Miner</h1>
+  <div class="sub">Stage 1 of 3 · Basics — What is mining, and how are rewards earned?</div>
+
+  <nav class="nav">
+    <a href="Qubators Cloud Miner — Stage 1 Prototype.html" class="active">Stage 1: Basics</a>
+    <a href="Qubators Cloud Miner — Stage 2 Prototype.html">Stage 2: Economics</a>
+    <a href="Qubators Cloud Miner — Stage 3 Prototype.html">Stage 3: Network</a>
+  </nav>
+
+  <div class="card">
+    <h2>📡 Network data</h2>
+    <div class="livebar" id="livebar">
+      <div class="loading-box"><span class="spinner"></span> Loading live data...</div>
+    </div>
+    <div id="marketError"></div>
+    <div style="font-size:11px;color:var(--muted);margin-top:8px" id="marketTimestamp"></div>
+  </div>
+
+  <div class="card">
+    <h2>1. What miners actually do</h2>
+    <p style="font-size:14px;line-height:1.5">Miners race to solve a math puzzle using specialized hardware (ASICs). Faster hardware = more attempted guesses per second, measured in <b>hash rate</b>. The first miner to solve it adds the next "block" to the blockchain and earns the block reward.</p>
+  </div>
+
+  <div class="card">
+    <h2>2. Build your virtual rig</h2>
+    <p style="font-size:13px;color:var(--muted)">Pick real ASIC models to add to your farm and see how hash rate and power draw scale.</p>
+    <div class="rigs" id="rigs"></div>
+    <div class="farm" id="farm"></div>
+    <div class="results" id="results"></div>
+  </div>
+
+  <div class="card quiz">
+    <h2>3. Quick check</h2>
+    <p style="font-size:14px">What determines how many block-reward "chances" your rig gets per second?</p>
+    <div id="quizOptions"></div>
+    <div id="quizFeedback" style="font-size:13px;margin-top:8px"></div>
+  </div>
+
+  <div id="badgeArea"></div>
+</div>
+
+<script>
+const RIGS = [
+  {name:"Antminer S19 XP", hash:140, power:3010, price:"~$2,200"},
+  {name:"Whatsminer M50S", hash:126, power:3276, price:"~$1,900"},
+  {name:"Antminer S9 (legacy)", hash:14, power:1372, price:"~$120"},
+];
+let selected = new Set();
+let marketData = null;
+
+// --- Fetch live market data ---
+async function fetchMarketData(){
+  const livebar = document.getElementById('livebar');
+  const errBox = document.getElementById('marketError');
+  const tsDiv = document.getElementById('marketTimestamp');
+  errBox.innerHTML = '';
+  try {
+    const res = await fetch('/api/market-data');
+    if (!res.ok) throw new Error('API error');
+    marketData = await res.json();
+    const netHashEH = marketData.network_hashrate ? (marketData.network_hashrate / 1e18).toFixed(0) : '740';
+    livebar.innerHTML = `
+      <div>BTC price: <b>$${marketData.btc_price?.toLocaleString() || '—'}</b></div>
+      <div>Network difficulty change: <b>${marketData.difficulty_change_pct != null ? (marketData.difficulty_change_pct > 0 ? '+' : '') + marketData.difficulty_change_pct.toFixed(1) + '%' : '—'}</b></div>
+      <div>Network hash rate: <b>~${netHashEH} EH/s</b></div>
+    `;
+    tsDiv.textContent = `Data as of ${new Date(marketData.fetched_at).toLocaleTimeString()} (${marketData.source})`;
+  } catch(e) {
+    livebar.innerHTML = '<div>BTC price: <b>$109,200</b></div><div>Network difficulty: <b>~102 T</b></div><div>Network hash rate: <b>~740 EH/s</b></div>';
+    tsDiv.textContent = 'Sample values (live data unavailable)';
+    errBox.innerHTML = '<div class="error-box">⚠️ Could not load live data. Showing sample values.</div>';
+  }
+}
+
+function renderRigs(){
+  const el = document.getElementById('rigs');
+  el.innerHTML = '';
+  RIGS.forEach((r,i)=>{
+    const b = document.createElement('button');
+    b.className = 'rig' + (selected.has(i)?' selected':'');
+    b.innerHTML = `<b>${r.name}</b>${r.hash} TH/s · ${r.power}W<br>${r.price}`;
+    b.onclick = ()=>{ selected.has(i)?selected.delete(i):selected.add(i); renderRigs(); renderFarmAndResults(); };
+    el.appendChild(b);
+  });
+}
+
+function renderFarmAndResults(){
+  const farm = document.getElementById('farm');
+  farm.innerHTML = '';
+  let totalHash=0, totalPower=0;
+  selected.forEach(i=>{
+    totalHash += RIGS[i].hash; totalPower += RIGS[i].power;
+    const blocks = Math.max(1, Math.round(RIGS[i].hash/20));
+    for(let j=0;j<blocks;j++){ const d=document.createElement('div'); d.className='block'; farm.appendChild(d); }
+  });
+
+  const netHashEH = marketData?.network_hashrate ? marketData.network_hashrate / 1e18 : 740;
+  const netHashTH = netHashEH * 1e6;
+  const yourShare = totalHash / netHashTH;
+  const btcPrice = marketData?.btc_price || 109200;
+  const dailyBTC = yourShare * 450 * 3.125;
+  const dailyUSD = dailyBTC * btcPrice;
+  const dailyPowerCostKwh = (totalPower/1000)*24;
+  const dailyPowerCostUSD = dailyPowerCostKwh * 0.12;
+
+  const results = document.getElementById('results');
+  results.innerHTML = `
+    <div class="result"><div class="v">${totalHash} TH/s</div><div class="l">Your hash rate</div></div>
+    <div class="result"><div class="v">${totalPower} W</div><div class="l">Power draw</div></div>
+    <div class="result"><div class="v">${dailyBTC.toFixed(8)}</div><div class="l">Est. BTC/day</div></div>
+    <div class="result"><div class="v">$${dailyUSD.toFixed(2)}</div><div class="l">Est. value/day</div></div>
+    <div class="result"><div class="v">$${dailyPowerCostUSD.toFixed(2)}</div><div class="l">Est. power cost/day</div></div>
+  `;
+}
+
+const QUIZ = {
+  q:"What determines how many block-reward \"chances\" your rig gets per second?",
+  options:[
+    {t:"Your hash rate (guesses per second)", correct:true},
+    {t:"How much BTC you already own", correct:false},
+    {t:"Your internet connection speed", correct:false},
+  ]
+};
+function renderQuiz(){
+  const el = document.getElementById('quizOptions');
+  el.innerHTML='';
+  QUIZ.options.forEach(o=>{
+    const l = document.createElement('label');
+    l.textContent = o.t;
+    l.onclick = ()=>{
+      [...el.children].forEach(c=>c.classList.remove('correct','wrong'));
+      l.classList.add(o.correct?'correct':'wrong');
+      document.getElementById('quizFeedback').textContent = o.correct
+        ? "Correct! Hash rate = attempts per second, which sets your odds of winning the next block."
+        : "Not quite — it's about how many guesses per second your hardware can make.";
+      if(o.correct) showBadge();
+    };
+    el.appendChild(l);
+  });
+}
+
+function showBadge(){
+  const el = document.getElementById('badgeArea');
+  if(el.dataset.shown) return;
+  el.dataset.shown = "1";
+  el.innerHTML = `<div class="badge">🏅 Stage 1 badge earned — Basics complete!</div>`;
+  try{ localStorage.setItem('qubators_stage1_complete','1'); }catch(e){}
+}
+
+// --- Init ---
+fetchMarketData();
+renderRigs();
+renderFarmAndResults();
+renderQuiz();
+</script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Qubators Cloud Miner — Login</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="wrap">
+    <div class="auth-box">
+      <h1>Qubators Cloud Miner</h1>
+      <div class="card">
+        <h2 id="formTitle">Sign In</h2>
+        <div class="field">
+          <label>Email</label>
+          <input id="email" type="email" placeholder="you@example.com" value="">
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input id="password" type="password" placeholder="Your password" value="">
+        </div>
+        <div class="field" id="nameField" style="display:none">
+          <label>Display Name</label>
+          <input id="displayName" type="text" placeholder="How should we call you?" value="">
+        </div>
+        <div id="authError"></div>
+        <button class="action" id="submitBtn" onclick="handleSubmit()">Sign In</button>
+        <div class="alt">
+          <span id="altText">Don't have an account?</span>
+          <a id="toggleMode" onclick="toggleMode()">Sign up</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    let mode = 'signin';
+
+    function toggleMode() {
+      mode = mode === 'signin' ? 'signup' : 'signin';
+      document.getElementById('formTitle').textContent = mode === 'signin' ? 'Sign In' : 'Sign Up';
+      document.getElementById('nameField').style.display = mode === 'signup' ? 'block' : 'none';
+      document.getElementById('submitBtn').textContent = mode === 'signin' ? 'Sign In' : 'Sign Up';
+      document.getElementById('altText').textContent = mode === 'signin' ? "Don't have an account?" : 'Already have an account?';
+      document.getElementById('toggleMode').textContent = mode === 'signin' ? 'Sign up' : 'Sign in';
+      document.getElementById('authError').innerHTML = '';
+    }
+
+    async function handleSubmit() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const displayName = document.getElementById('displayName').value.trim();
+      const errBox = document.getElementById('authError');
+      errBox.innerHTML = '';
+
+      if (!email || !password) {
+        errBox.innerHTML = '<div class="error-box">Please fill in all fields.</div>';
+        return;
+      }
+
+      try {
+        if (mode === 'signin') {
+          await signIn(email, password);
+        } else {
+          if (!displayName) {
+            errBox.innerHTML = '<div class="error-box">Please enter a display name.</div>';
+            return;
+          }
+          await signUp(email, password, displayName);
+        }
+        window.location.href = '/index.html';
+      } catch (e) {
+        errBox.innerHTML = `<div class="error-box">${e.message}</div>`;
+      }
+    }
+
+    // Redirect if already logged in
+    if (authToken) {
+      checkAuth().then(ok => {
+        if (ok) window.location.href = '/index.html';
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Qubators Cloud Miner — Stage 3</title>
+<style>
+:root{
+  --bg:#0f1216; --card:#171b21; --border:#262c35; --text:#e9edf2; --muted:#9aa4b2;
+  --accent:#f7931a; --accent2:#3ddc97; --danger:#e05252;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: light){ :root:not([data-theme="dark"]){ --bg:#f7f8fa; --card:#fff; --border:#e3e6ea; --text:#1a1d22; --muted:#5b6572; } }
+:root[data-theme="light"]{ --bg:#f7f8fa; --card:#fff; --border:#e3e6ea; --text:#1a1d22; --muted:#5b6572; }
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,Segoe UI,Roboto,sans-serif;min-height:100%;}
+.wrap{max-width:760px;margin:0 auto;padding:28px 20px 60px;}
+.disclaimer{background:#3a2a12;color:#f7c98a;border:1px solid #6b4a1f;border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:20px;}
+h1{font-size:22px;margin:0 0 4px}
+.sub{color:var(--muted);font-size:14px;margin-bottom:24px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:18px;}
+.card h2{font-size:16px;margin:0 0 10px}
+.row{display:flex;flex-wrap:wrap;gap:16px;margin-top:10px}
+.field{flex:1;min-width:140px}
+.field label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px}
+.field input{width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:14px}
+.results{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:14px}
+.result{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center}
+.result .v{font-size:16px;font-weight:600}
+.result .l{font-size:11px;color:var(--muted)}
+.toggle{display:flex;gap:8px;margin-top:10px}
+.toggle button{flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);cursor:pointer;font-size:13px}
+.toggle button.active{border-color:var(--accent);background:rgba(247,147,26,.1)}
+.quiz label{display:block;padding:8px 10px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;font-size:14px}
+.quiz label.correct{border-color:var(--accent2);background:rgba(61,220,151,.1)}
+.quiz label.wrong{border-color:var(--danger);background:rgba(224,82,82,.1)}
+.badge{display:inline-block;background:var(--accent2);color:#062;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;margin-top:10px}
+/* Navigation */
+.nav{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.nav a{padding:6px 14px;border-radius:20px;font-size:13px;text-decoration:none;color:var(--muted);border:1px solid var(--border)}
+.nav a.active{background:var(--accent);color:#1a1206;border-color:var(--accent);font-weight:600}
+.nav a:hover:not(.active){border-color:var(--accent);color:var(--accent)}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error-box{background:rgba(224,82,82,.1);border:1px solid var(--danger);color:var(--danger);border-radius:8px;padding:10px 14px;font-size:13px;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="disclaimer">⚠️ Educational simulation only. No real Bitcoin mining occurs and no cryptocurrency is earned or exchanged.</div>
+  <h1>Qubators Cloud Miner</h1>
+  <div class="sub">Stage 3 of 3 · Network Effects — difficulty adjustment &amp; pool vs. solo</div>
+
+  <nav class="nav">
+    <a href="Qubators Cloud Miner — Stage 1 Prototype.html">Stage 1: Basics</a>
+    <a href="Qubators Cloud Miner — Stage 2 Prototype.html">Stage 2: Economics</a>
+    <a href="Qubators Cloud Miner — Stage 3 Prototype.html" class="active">Stage 3: Network</a>
+  </nav>
+
+  <div class="card">
+    <h2>1. Difficulty adjustment</h2>
+    <p style="font-size:14px;line-height:1.5">Bitcoin targets one block every ~10 minutes. Every 2016 blocks (~2 weeks), <b>difficulty</b> adjusts up or down based on how much total hash rate joined or left the network — keeping block time roughly constant no matter how many miners show up.</p>
+    <div class="row">
+      <div class="field"><label>Network hash rate change (%)</label><input id="hashChange" type="number" value="10"></div>
+    </div>
+    <div class="results" id="diffResults"></div>
+  </div>
+
+  <div class="card">
+    <h2>2. Pool vs. solo mining</h2>
+    <p style="font-size:14px;line-height:1.5">Solo mining means you only get paid if <i>you</i> find a block — rare and unpredictable for small miners. A <b>pool</b> combines many miners' hash rate; when the pool wins, the reward is split proportionally — small, steady payouts instead of a rare jackpot.</p>
+    <div class="toggle">
+      <button id="soloBtn" class="active">Solo (140 TH/s)</button>
+      <button id="poolBtn">Pool (140 TH/s share)</button>
+    </div>
+    <div class="results" id="poolResults"></div>
+  </div>
+
+  <div class="card quiz">
+    <h2>3. Quick check</h2>
+    <p style="font-size:14px">If a huge wave of new miners joins the network, what happens to difficulty?</p>
+    <div id="quizOptions"></div>
+    <div id="quizFeedback" style="font-size:13px;margin-top:8px"></div>
+  </div>
+
+  <div id="badgeArea"></div>
+  <div id="finalCert"></div>
+</div>
+
+<script>
+const NET_HASH_TH = 740e6, YOUR_HASH = 140, CURRENT_DIFFICULTY = 102e12; // ~102T sample
+
+function calcDifficulty(){
+  const change = parseFloat(document.getElementById('hashChange').value)||0;
+  const newDifficulty = CURRENT_DIFFICULTY * (1 + change/100);
+  const newDifficultyT = (newDifficulty / 1e12).toFixed(1);
+  const el = document.getElementById('diffResults');
+  el.innerHTML = `
+    <div class="result"><div class="v">${change>=0?'+':''}${change}%</div><div class="l">Hash rate change</div></div>
+    <div class="result"><div class="v">${change>=0?'+':''}${change}%</div><div class="l">Difficulty adjusts by</div></div>
+    <div class="result"><div class="v">~${newDifficultyT} T</div><div class="l">New difficulty (from ~102T)</div></div>
+    <div class="result"><div class="v">~10 min</div><div class="l">Target block time (unchanged)</div></div>
+  `;
+}
+document.getElementById('hashChange').addEventListener('input', calcDifficulty);
+calcDifficulty();
+
+function renderPool(mode){
+  const share = YOUR_HASH / NET_HASH_TH;
+  const el = document.getElementById('poolResults');
+  if(mode==='solo'){
+    const daysPerBlock = 1/(share*450);
+    el.innerHTML = `
+      <div class="result"><div class="v">~${Math.round(daysPerBlock)} days</div><div class="l">Avg. wait to find a block</div></div>
+      <div class="result"><div class="v">3.125 BTC</div><div class="l">Full reward if you win</div></div>
+      <div class="result"><div class="v">High</div><div class="l">Payout variance</div></div>
+    `;
+  } else {
+    const dailyBTC = share*450*3.125;
+    el.innerHTML = `
+      <div class="result"><div class="v">Daily</div><div class="l">Payout frequency</div></div>
+      <div class="result"><div class="v">${dailyBTC.toFixed(8)}</div><div class="l">Your steady share/day</div></div>
+      <div class="result"><div class="v">Low</div><div class="l">Payout variance</div></div>
+    `;
+  }
+}
+document.getElementById('soloBtn').onclick = ()=>{ document.getElementById('soloBtn').classList.add('active'); document.getElementById('poolBtn').classList.remove('active'); renderPool('solo'); };
+document.getElementById('poolBtn').onclick = ()=>{ document.getElementById('poolBtn').classList.add('active'); document.getElementById('soloBtn').classList.remove('active'); renderPool('pool'); };
+renderPool('solo');
+
+const QUIZ = { options:[
+  {t:"Difficulty increases, to keep block time near 10 minutes", correct:true},
+  {t:"Difficulty stays exactly the same", correct:false},
+  {t:"Block time speeds up permanently", correct:false},
+]};
+function renderQuiz(){
+  const el = document.getElementById('quizOptions');
+  QUIZ.options.forEach(o=>{
+    const l = document.createElement('label');
+    l.textContent = o.t;
+    l.onclick = ()=>{
+      [...el.children].forEach(c=>c.classList.remove('correct','wrong'));
+      l.classList.add(o.correct?'correct':'wrong');
+      document.getElementById('quizFeedback').textContent = o.correct
+        ? "Correct! More hash rate means blocks would come faster than 10 min, so difficulty rises to compensate."
+        : "Not quite — think about what keeps block time constant as more miners join.";
+      if(o.correct) showBadge();
+    };
+    el.appendChild(l);
+  });
+}
+function showBadge(){
+  const el = document.getElementById('badgeArea');
+  if(el.dataset.shown) return;
+  el.dataset.shown = "1";
+  el.innerHTML = `<div class="badge">🏅 Stage 3 badge earned — Network Effects complete!</div>`;
+  try{ localStorage.setItem('qubators_stage3_complete','1'); }catch(e){}
+  document.getElementById('finalCert').innerHTML = `
+    <div class="card" style="text-align:center;border-color:var(--accent)">
+      <h2>🎓 Certificate of Completion</h2>
+      <p style="font-size:14px">You've completed all 3 stages of Qubators Cloud Miner: Basics, Economics, and Network Effects.</p>
+    </div>`;
+}
+renderQuiz();
+</script>
+</body>
+</html>

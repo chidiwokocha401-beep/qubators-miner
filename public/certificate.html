@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Qubators Cloud Miner — Certificate</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="wrap">
+    <div class="disclaimer">⚠️ Educational simulation only. No real Bitcoin mining occurs and no cryptocurrency is earned or exchanged.</div>
+    <h1>Your Certificate</h1>
+    <p class="sub">Congratulations on completing all 3 stages!</p>
+
+    <div id="certContent"><div class="loading-box"><span class="spinner"></span> Loading...</div></div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    renderNav('');
+
+    async function loadCertificate() {
+      const content = document.getElementById('certContent');
+      try {
+        const data = await api('/certificate');
+        if (!data.complete) {
+          content.innerHTML = `<div class="card" style="text-align:center">
+            <h2>🎓 Not Yet Earned</h2>
+            <p>${data.message || 'Complete all 3 stages to earn your certificate.'}</p>
+            <a href="/index.html"><button class="action">View Progress</button></a>
+          </div>`;
+          return;
+        }
+        const cert = data.certificate;
+        content.innerHTML = `
+          <div class="certificate">
+            <h2>🎓 Certificate of Completion</h2>
+            <p style="font-size:16px;margin:8px 0">This certifies that</p>
+            <p style="font-size:22px;font-weight:700;color:var(--accent)">${cert.display_name}</p>
+            <p style="font-size:14px;margin:8px 0">has successfully completed all 3 stages of</p>
+            <p style="font-size:18px;font-weight:600">Qubators Cloud Miner</p>
+            <p style="font-size:13px;color:var(--muted);margin-top:12px">Basics · Economics · Network Effects</p>
+            <p class="cert-id">Certificate ID: ${cert.id}</p>
+            <p class="cert-id">Issued: ${new Date(cert.issued_at).toLocaleDateString()}</p>
+          </div>
+          <div style="text-align:center;margin-top:20px">
+            <button class="action" onclick="window.print()">Print / Save as PDF</button>
+            <a href="/leaderboard.html"><button class="secondary">View Leaderboard</button></a>
+          </div>
+        `;
+      } catch (e) {
+        content.innerHTML = `<div class="card" style="text-align:center">
+          <h2>⚠️ Error</h2>
+          <p>Please log in to view your certificate.</p>
+          <a href="/login.html"><button class="action">Log In</button></a>
+        </div>`;
+      }
+    }
+    loadCertificate();
+  </script>
+</body>
+</html>

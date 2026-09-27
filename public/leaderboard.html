@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Qubators Cloud Miner — Leaderboard</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="wrap">
+    <div class="disclaimer">⚠️ Educational simulation only. No real Bitcoin mining occurs and no cryptocurrency is earned or exchanged.</div>
+    <h1>Leaderboard</h1>
+    <p class="sub">Fastest completers — who finished all 3 stages in the least time?</p>
+
+    <div class="card">
+      <h2>Top Miners</h2>
+      <div id="leaderboardContent"><div class="loading-box"><span class="spinner"></span> Loading...</div></div>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    renderNav('leaderboard');
+
+    async function loadLeaderboard() {
+      const content = document.getElementById('leaderboardContent');
+      try {
+        const { leaderboard } = await api('/leaderboard?limit=20');
+        if (!leaderboard || leaderboard.length === 0) {
+          content.innerHTML = '<p style="color:var(--muted)">No completions yet. Be the first!</p>';
+          return;
+        }
+        const medals = ['🥇', '🥈', '🥉'];
+        content.innerHTML = '<ul class="leaderboard-list">' + leaderboard.map((entry, i) => {
+          const date = new Date(entry.metric);
+          const dateStr = date.toLocaleDateString();
+          return `<li>
+            <span class="rank">${medals[i] || (i + 1) + '.'}</span>
+            <span class="name">${entry.display_name}</span>
+            <span class="metric">Completed ${dateStr}</span>
+          </li>`;
+        }).join('') + '</ul>';
+      } catch (e) {
+        content.innerHTML = '<div class="error-box">Failed to load leaderboard.</div>';
+      }
+    }
+    loadLeaderboard();
+  </script>
+</body>
+</html>

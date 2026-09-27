@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Qubators Cloud Miner — Home</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="wrap">
+    <div class="disclaimer">⚠️ Educational simulation only. No real Bitcoin mining occurs and no cryptocurrency is earned or exchanged.</div>
+    <h1>Qubators Cloud Miner</h1>
+    <p class="sub">Learn how Bitcoin mining works — free, interactive, and beginner-friendly.</p>
+
+    <div class="card">
+      <h2>Your Progress</h2>
+      <div id="progressSummary"><div class="loading-box"><span class="spinner"></span> Loading...</div></div>
+      <div class="dashboard-grid" id="dashboardGrid"></div>
+    </div>
+
+    <div class="card">
+      <h2>Live Market Data</h2>
+      <div class="livebar" id="livebar"><div class="loading-box"><span class="spinner"></span> Loading...</div></div>
+      <div id="marketError"></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px" id="marketTimestamp"></div>
+    </div>
+
+    <div class="card">
+      <h2>About</h2>
+      <p>Qubators Cloud Miner is a free, educational simulator that teaches you how Bitcoin mining works through 3 interactive stages. No real money, no real mining — just learning.</p>
+      <p style="margin-top:12px"><a href="/stage1.html">Start Stage 1 →</a></p>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    renderNav('home');
+    fetchMarketData();
+
+    async function loadDashboard() {
+      const summary = document.getElementById('progressSummary');
+      const grid = document.getElementById('dashboardGrid');
+      try {
+        const progress = await loadProgress();
+        const stages = ['stage1', 'stage2', 'stage3'];
+        const labels = { stage1: 'Basics', stage2: 'Economics', stage3: 'Network' };
+        const completed = stages.filter(s => progress.find(p => p.stage_id === s && p.completed));
+        const pct = Math.round((completed.length / 3) * 100);
+
+        summary.innerHTML = `<p style="font-size:14px">${completed.length} of 3 stages completed (${pct}%)</p>`;
+
+        grid.innerHTML = stages.map(s => {
+          const done = progress.find(p => p.stage_id === s && p.completed);
+          return `<div class="dashboard-card">
+            <div class="v">${done ? '✅' : '⬜'}</div>
+            <div class="l">${labels[s]}</div>
+            <a href="/${s}.html"><button class="action" style="margin-top:8px">${done ? 'Review' : 'Start'}</button></a>
+          </div>`;
+        }).join('');
+
+        if (completed.length === 3) {
+          grid.innerHTML += `<div class="dashboard-card" style="border-color:var(--accent)">
+            <div class="v">🎓</div>
+            <div class="l">Certificate Earned!</div>
+            <a href="/certificate.html"><button class="action" style="margin-top:8px">View</button></a>
+          </div>`;
+        }
+      } catch (e) {
+        summary.innerHTML = '<div class="error-box">Please log in to track your progress.</div>';
+        grid.innerHTML = '';
+      }
+    }
+    loadDashboard();
+  </script>
+</body>
+</html>

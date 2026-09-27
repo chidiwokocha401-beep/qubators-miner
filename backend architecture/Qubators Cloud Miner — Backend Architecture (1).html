@@ -1,0 +1,188 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}</style><style>:root{color-scheme:light dark;--md-bg:#fff;--md-text:rgba(0,0,0,.8);--md-muted:rgba(0,0,0,.6);--md-fill:rgba(0,0,0,.04);--md-fill-strong:rgba(0,0,0,.06);--md-rule:rgba(0,0,0,.1);--md-rule-strong:rgba(0,0,0,.16);--md-link:hsl(210 100% 45%)}@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])){--md-bg:#0d0d0d;--md-text:rgba(255,255,255,.85);--md-muted:rgba(255,255,255,.6);--md-fill:rgba(255,255,255,.06);--md-fill-strong:rgba(255,255,255,.09);--md-rule:rgba(255,255,255,.14);--md-rule-strong:rgba(255,255,255,.22);--md-link:hsl(210 100% 72%)}}:root[data-theme="dark"]{color-scheme:dark;--md-bg:#0d0d0d;--md-text:rgba(255,255,255,.85);--md-muted:rgba(255,255,255,.6);--md-fill:rgba(255,255,255,.06);--md-fill-strong:rgba(255,255,255,.09);--md-rule:rgba(255,255,255,.14);--md-rule-strong:rgba(255,255,255,.22);--md-link:hsl(210 100% 72%)}:root[data-theme="light"]{color-scheme:light}@media print{:root,:root[data-theme="dark"]{color-scheme:light;--md-bg:#fff;--md-text:rgba(0,0,0,.8);--md-muted:rgba(0,0,0,.6);--md-fill:rgba(0,0,0,.04);--md-fill-strong:rgba(0,0,0,.06);--md-rule:rgba(0,0,0,.1);--md-rule-strong:rgba(0,0,0,.16);--md-link:hsl(210 100% 45%)}}body{background:var(--md-bg);color:var(--md-text);max-width:720px;margin:0 auto;padding:32px;display:flex;flex-direction:column;gap:10px;font:14px/1.55 -apple-system,BlinkMacSystemFont,'SF Pro','Segoe UI',sans-serif;overflow-wrap:break-word}body>:first-child{margin-top:0}h1,h2,h3,h4,h5,h6{margin:6px 0 0;line-height:1.25;font-weight:600;text-wrap:balance}h1{font-size:1.35em}h2{font-size:1.15em;color:var(--md-muted)}h3,h4,h5,h6{font-size:1em}p,ul,ol,blockquote,table,pre,hr{margin:0}strong{font-weight:600}a{color:var(--md-link);text-decoration:none}a:hover{text-decoration:underline}ul,ol{display:flex;flex-direction:column;gap:6px;padding-left:22px}ul{list-style:disc}ol{list-style:decimal}:is(li,td,th)>*+:is(p,ul,ol,blockquote){margin-top:6px}blockquote{display:flex;flex-direction:column;gap:10px;border-left:2px solid var(--md-rule);padding-left:10px;color:var(--md-muted)}:not(pre)>code{background:var(--md-fill);padding:1px 3px;border-radius:4px;font:.92em 'SF Mono',ui-monospace,Menlo,Consolas,monospace}a>code{background:none;color:inherit}pre{background:var(--md-fill);padding:10px 12px;border-radius:6px;overflow-x:auto;font:12px/1.5 'SF Mono',ui-monospace,Menlo,Consolas,monospace;margin-block:4px}pre code{background:none;padding:0;font:inherit}table{width:100%;border-collapse:separate;border-spacing:2px;font:inherit}th,td{padding:6px 8px;border-radius:3px;text-align:left;vertical-align:top}th{background:var(--md-fill-strong);font-weight:600}td{background:var(--md-fill)}:is(th,td) :not(pre)>code{background:transparent}hr{border:0;border-top:1px solid var(--md-rule-strong);margin-block:10px}img{max-width:100%;height:auto;border-radius:4px}</style>
+</head><body>
+<h1>Qubators Cloud Miner — Backend Architecture</h1>
+<p>Covers: live market data proxy, accounts/progress persistence, and leaderboard.</p>
+<h2>1. Architecture overview</h2>
+<pre class="mermaid">flowchart LR
+  A[Web App] --&gt;|GET /api/market-data| B[Backend API]
+  A --&gt;|GET/POST /api/progress| B
+  A --&gt;|GET /api/leaderboard| B
+  A --&gt;|Auth| C[Supabase/Firebase Auth]
+  B --&gt;|cached fetch every 60s| D[CoinGecko API]
+  B --&gt;|cached fetch every 60s| E[mempool.space API]
+  B --&gt; F[(Database)]
+  C --&gt; F
+</pre>
+<p>The frontend never calls CoinGecko/mempool.space directly — it always goes through your own backend, which caches responses. This avoids rate limits, hides nothing sensitive (these are public endpoints), and gives you one place to fix a broken upstream API later.</p>
+<h2>2. Database schema (Postgres via Supabase, or equivalent)</h2>
+<p><strong>users</strong> (mostly handled by Supabase Auth automatically)</p>
+<ul>
+<li><code>id</code> (uuid, PK)</li>
+<li><code>email</code></li>
+<li><code>display_name</code></li>
+<li><code>created_at</code></li>
+</ul>
+<p><strong>progress</strong></p>
+<ul>
+<li><code>user_id</code> (FK → users.id)</li>
+<li><code>stage_id</code> (text: &quot;stage1&quot; | &quot;stage2&quot; | &quot;stage3&quot;)</li>
+<li><code>completed</code> (bool)</li>
+<li><code>completed_at</code> (timestamp)</li>
+<li><code>quiz_score</code> (int, optional)</li>
+<li>Primary key: (<code>user_id</code>, <code>stage_id</code>)</li>
+</ul>
+<p><strong>farm_config</strong> (optional, if you want to persist their rig selections)</p>
+<ul>
+<li><code>user_id</code> (FK)</li>
+<li><code>rig_ids</code> (jsonb array)</li>
+<li><code>updated_at</code></li>
+</ul>
+<p><strong>leaderboard_cache</strong> (materialized/denormalized for fast reads)</p>
+<ul>
+<li><code>user_id</code> (FK)</li>
+<li><code>display_name</code></li>
+<li><code>metric</code> (e.g. total hash rate, or completion time in seconds)</li>
+<li><code>rank</code> (computed on read or via scheduled job)</li>
+</ul>
+<p><strong>market_data_cache</strong></p>
+<ul>
+<li><code>key</code> (text: &quot;btc_price&quot; | &quot;difficulty&quot; | &quot;network_hashrate&quot;)</li>
+<li><code>value</code> (numeric)</li>
+<li><code>fetched_at</code> (timestamp)</li>
+<li>Backend checks <code>fetched_at</code>; if older than ~60s, refetch from upstream, else serve cached row.</li>
+</ul>
+<h2>3. API routes</h2>
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th>Method</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/api/market-data</code></td>
+<td>GET</td>
+<td>Returns cached <code>{ btc_price, difficulty, network_hashrate, fetched_at }</code></td>
+</tr>
+<tr>
+<td><code>/api/progress</code></td>
+<td>GET</td>
+<td>Returns current user's progress across all stages</td>
+</tr>
+<tr>
+<td><code>/api/progress</code></td>
+<td>POST</td>
+<td>Body <code>{ stage_id, completed, quiz_score }</code> — upserts one stage's progress</td>
+</tr>
+<tr>
+<td><code>/api/leaderboard</code></td>
+<td>GET</td>
+<td>Returns top N users by chosen metric, paginated</td>
+</tr>
+<tr>
+<td><code>/api/certificate</code></td>
+<td>GET</td>
+<td>Returns completion status + generates certificate data once all 3 stages done</td>
+</tr>
+</tbody>
+</table>
+<p>Auth: attach the Supabase/Firebase session token on every request; backend verifies it before touching <code>progress</code> or <code>leaderboard</code> for that user. <code>market-data</code> can be public/unauthenticated.</p>
+<h2>4. Live data refresh strategy</h2>
+<ul>
+<li>Run a scheduled job (cron, every 60–120s) OR refresh lazily on request if cache is stale — either works at this scale.</li>
+<li>Never let the frontend poll the upstream APIs directly.</li>
+<li>Store a <code>fetched_at</code> timestamp and show it in the UI (&quot;data as of HH:MM&quot;) so users understand it's a snapshot, not real-time tick-by-tick.</li>
+</ul>
+<h2>5. Leaderboard computation</h2>
+<ul>
+<li>Recompute ranks on a schedule (e.g. every 5 min) rather than on every read — cheaper and avoids leaderboard &quot;flicker.&quot;</li>
+<li>Use a privacy-safe <code>display_name</code>, never real email/name, shown publicly.</li>
+</ul>
+<h2>6. Suggested build order</h2>
+<ol>
+<li>Wire up Supabase/Firebase auth (email/password + optional Google login)</li>
+<li><code>/api/progress</code> GET/POST + progress table — replaces the current localStorage-only version</li>
+<li><code>/api/market-data</code> with caching — replaces hardcoded sample numbers in the app</li>
+<li><code>/api/leaderboard</code> — last, since it depends on progress data existing first</li>
+</ol>
+
+
+<!--claude-mermaid-runtime-begin:3477-->
+<style>.mermaid-diagram{margin-block:4px}.mermaid-diagram svg{display:block;margin:0 auto;max-width:100%;height:auto}</style>
+<script src="/_runtime/mermaid-11.16.1.min.js"></script>
+<script>(function(){
+var CFG={"palettes":{"light":{"surface":"#f4efe4","text":"#42392e","line":"#8a7f6d","border":"#7a6c52","bg":"#fffdf8"},"dark":{"surface":"#262b34","text":"#f2f3f5","line":"#a8adb8","border":"#9aa4b8","bg":"#1f232b"}}};
+if(typeof mermaid==='undefined')return;
+var pres=Array.prototype.slice.call(document.querySelectorAll('pre.mermaid')).filter(function(p){if(p.hasAttribute('data-claude-mermaid-claimed'))return false;p.setAttribute('data-claude-mermaid-claimed','1');return true;});
+if(!pres.length)return;
+var mq=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
+var root=document.documentElement;
+var items=pres.map(function(pre){
+var mount=document.createElement('div');mount.className='mermaid-diagram';
+return {pre:pre,mount:mount,src:pre.textContent||''};
+});
+var seq=0;
+var renderGen=0;
+var lastKey='';
+function pageBg(fallback){
+var els=[document.body,document.documentElement];
+for(var i=0;i<els.length;i++){
+var c=els[i]&&getComputedStyle(els[i]).backgroundColor;
+if(c&&c!=='transparent'&&c!=='rgba(0, 0, 0, 0)')return c;
+}
+return fallback;
+}
+function render(){
+var theme=root.getAttribute('data-theme');
+var dark=theme==='dark'||(!!(mq&&mq.matches)&&theme!=='light');
+var pal=dark?CFG.palettes.dark:CFG.palettes.light;
+var bg=pageBg(pal.bg);
+var key=(dark?'d':'l')+'|'+bg;
+if(key===lastKey)return;
+lastKey=key;
+var gen=++renderGen;
+var font=getComputedStyle(document.body).fontFamily||'sans-serif';
+var nat={useMaxWidth:false};
+mermaid.initialize({
+startOnLoad:false,securityLevel:'strict',theme:'base',
+flowchart:nat,sequence:nat,er:nat,state:nat,class:nat,pie:nat,
+gantt:nat,journey:nat,timeline:nat,gitGraph:nat,mindmap:nat,xyChart:nat,
+quadrantChart:nat,sankey:nat,c4:nat,requirement:nat,block:nat,
+packet:nat,kanban:nat,architecture:nat,radar:nat,
+themeVariables:{background:bg,mainBkg:pal.surface,primaryColor:pal.surface,
+primaryTextColor:pal.text,lineColor:pal.line,primaryBorderColor:pal.border,
+nodeBorder:pal.border,clusterBorder:pal.border,edgeLabelBackground:bg,
+clusterBkg:'rgba(127,127,127,0.07)',titleColor:pal.text,
+darkMode:dark,rowOdd:bg,rowEven:'rgba(127,127,127,0.07)',
+attributeBackgroundColorOdd:bg,attributeBackgroundColorEven:'rgba(127,127,127,0.07)',
+fontSize:'16px',fontFamily:font},
+themeCSS:'.node rect, .node circle, .node polygon, .node path, .cluster rect { stroke-width: 2px; }'
+});
+items.forEach(function(it){
+var id='claude-mermaid-'+seq++;
+mermaid.render(id,it.src).then(function(r){
+if(gen!==renderGen)return;
+var prev=it.pre.previousElementSibling;
+if(prev&&prev.className==='mermaid-diagram'&&prev!==it.mount)return;
+it.mount.innerHTML=r.svg;
+if(!it.mount.parentNode)it.pre.parentNode.insertBefore(it.mount,it.pre);
+it.pre.style.display='none';
+},function(){
+var scratch=document.getElementById(id);
+if(scratch)scratch.parentNode.removeChild(scratch);
+scratch=document.getElementById('d'+id);
+if(scratch)scratch.parentNode.removeChild(scratch);
+if(gen!==renderGen)return;
+if(it.mount.parentNode)it.mount.parentNode.removeChild(it.mount);
+it.pre.style.display='';
+});
+});
+}
+render();
+if(mq&&mq.addEventListener)mq.addEventListener('change',render);
+if(typeof MutationObserver!=='undefined')new MutationObserver(render).observe(root,{attributes:true,attributeFilter:['data-theme']});
+})();</script>
+<!--claude-mermaid-runtime-end-->
+</body></html>
