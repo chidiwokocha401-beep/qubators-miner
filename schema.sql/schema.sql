@@ -44,7 +44,7 @@ create table if not exists public.certificates (
   issued_at timestamptz not null default now()
 );
 
--- Row Level Security: users can only read/write their own progress & farm config.
+-- Row Level Security
 alter table public.progress enable row level security;
 alter table public.farm_config enable row level security;
 alter table public.profiles enable row level security;
@@ -58,8 +58,6 @@ create policy "own farm config" on public.farm_config
 create policy "own profile read/write" on public.profiles
   for all using (auth.uid() = id) with check (auth.uid() = id);
 
--- Leaderboard and market data are public read-only; writes happen via a trusted
--- server role (service_role key), never from the client.
 alter table public.leaderboard_cache enable row level security;
 create policy "public read leaderboard" on public.leaderboard_cache
   for select using (true);

@@ -3,74 +3,342 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Qubators Cloud Miner — Home</title>
+  <title>Qubators Cloud Miner — Bitcoin Mining Simulator</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
-<body>
-  <div class="wrap">
-    <div class="disclaimer">⚠️ Educational simulation only. No real Bitcoin mining occurs and no cryptocurrency is earned or exchanged.</div>
-    <h1>Qubators Cloud Miner</h1>
-    <p class="sub">Learn how Bitcoin mining works — free, interactive, and beginner-friendly.</p>
-
-    <div class="card">
-      <h2>Your Progress</h2>
-      <div id="progressSummary"><div class="loading-box"><span class="spinner"></span> Loading...</div></div>
-      <div class="dashboard-grid" id="dashboardGrid"></div>
+<body class="landing">
+  <!-- Top Navigation -->
+  <header class="top-nav">
+    <div class="nav-left">
+      <a href="/index.html" class="logo">
+        <span class="logo-icon">⛏️</span>
+        <span class="logo-text">Qubators</span>
+      </a>
     </div>
-
-    <div class="card">
-      <h2>Live Market Data</h2>
-      <div class="livebar" id="livebar"><div class="loading-box"><span class="spinner"></span> Loading...</div></div>
-      <div id="marketError"></div>
-      <div style="font-size:11px;color:var(--muted);margin-top:8px" id="marketTimestamp"></div>
+    <nav class="nav-links">
+      <a href="#calculator">Calculator</a>
+      <a href="#how-it-works">How It Works</a>
+      <a href="#features">Features</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="nav-right">
+      <a href="/login.html" class="btn btn-primary">Sign In</a>
     </div>
+  </header>
 
-    <div class="card">
-      <h2>About</h2>
-      <p>Qubators Cloud Miner is a free, educational simulator that teaches you how Bitcoin mining works through 3 interactive stages. No real money, no real mining — just learning.</p>
-      <p style="margin-top:12px"><a href="/stage1.html">Start Stage 1 →</a></p>
+  <!-- Hero Section -->
+  <main class="hero">
+    <div class="hero-inner">
+      <div class="hero-content">
+        <h1>Bitcoin Cloud Mining<br><span class="accent">Simulator</span></h1>
+        <p class="hero-sub">Learn how Bitcoin mining works with our free interactive simulator. No real money, no real mining — just learning.</p>
+        <div class="hero-cta">
+          <a href="#calculator" class="btn btn-primary btn-lg">Start Simulating</a>
+          <a href="#how-it-works" class="btn btn-outline btn-lg">Learn More</a>
+        </div>
+        <div class="hero-stats">
+          <div class="stat"><span class="stat-num">Free</span><span class="stat-label">No Cost</span></div>
+          <div class="stat"><span class="stat-num">3</span><span class="stat-label">Topics</span></div>
+          <div class="stat"><span class="stat-num">100%</span><span class="stat-label">Educational</span></div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="mining-animation">
+          <div class="rig-grid">
+            <div class="rig"><div class="fan"></div><span>ASIC 1</span></div>
+            <div class="rig"><div class="fan"></div><span>ASIC 2</span></div>
+            <div class="rig"><div class="fan"></div><span>ASIC 3</span></div>
+            <div class="rig"><div class="fan"></div><span>ASIC 4</span></div>
+          </div>
+          <div class="hash-rate">
+            <span class="hash-label">Network Hash Rate</span>
+            <span class="hash-value" id="heroHashRate">740 EH/s</span>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
+  </main>
+
+  <!-- Live Market Data -->
+  <section class="market-bar">
+    <div class="market-inner">
+      <div class="market-item">
+        <span class="market-label">BTC Price</span>
+        <span class="market-value" id="btcPrice">Loading...</span>
+      </div>
+      <div class="market-item">
+        <span class="market-label">Difficulty Change</span>
+        <span class="market-value" id="diffChange">Loading...</span>
+      </div>
+      <div class="market-item">
+        <span class="market-label">Network Hash Rate</span>
+        <span class="market-value" id="netHash">Loading...</span>
+      </div>
+      <div class="market-item">
+        <span class="market-label">Block Reward</span>
+        <span class="market-value">3.125 BTC</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Profitability Calculator -->
+  <section id="calculator" class="content-section">
+    <h2 class="section-title">Mining Profitability Calculator</h2>
+    <div class="card">
+      <div class="calc-grid">
+        <div class="calc-inputs">
+          <div class="field">
+            <label>Budget (USD)</label>
+            <input id="calcBudget" type="number" value="2200" min="100" step="100">
+          </div>
+          <div class="field">
+            <label>Contract Length</label>
+            <select id="calcLength">
+              <option value="1">1 month</option>
+              <option value="3">3 months</option>
+              <option value="6">6 months</option>
+              <option value="12" selected>12 months</option>
+              <option value="24">24 months</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>BTC Price Forecast</label>
+            <select id="calcBtcPrice">
+              <option value="100000">$100,000</option>
+              <option value="120000" selected>$120,000</option>
+              <option value="150000">$150,000</option>
+              <option value="200000">$200,000</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Electricity ($/kWh)</label>
+            <input id="calcKwh" type="number" value="0.12" step="0.01" min="0.01">
+          </div>
+        </div>
+        <div class="calc-results">
+          <div class="result-card">
+            <span class="result-label">Est. Hash Rate</span>
+            <span class="result-value" id="calcHashRate">140 TH/s</span>
+          </div>
+          <div class="result-card">
+            <span class="result-label">Monthly Revenue</span>
+            <span class="result-value" id="calcRevenue">$0.00</span>
+          </div>
+          <div class="result-card">
+            <span class="result-label">Monthly Power Cost</span>
+            <span class="result-value" id="calcPowerCost">$0.00</span>
+          </div>
+          <div class="result-card">
+            <span class="result-label">Monthly Profit</span>
+            <span class="result-value" id="calcProfit">$0.00</span>
+          </div>
+          <div class="result-card highlight">
+            <span class="result-label">Break-even</span>
+            <span class="result-value" id="calcBreakEven">0 days</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section id="how-it-works" class="content-section">
+    <h2 class="section-title">How Cloud Mining Works</h2>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <h3>Select & Order an ASIC</h3>
+        <p>Explore our marketplace and purchase top miners securely.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <h3>Hassle-Free Setup</h3>
+        <p>We handle logistics, setup, hosting, and maintenance.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <h3>Start Mining</h3>
+        <p>Your miner works 24/7. Earned BTC is sent directly to your wallet daily.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">4</div>
+        <h3>Monitor with Ease</h3>
+        <p>Manage and track your miner easily via our mobile app.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features" class="content-section">
+    <h2 class="section-title">Why Choose Qubators</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🎓</div>
+        <h3>Educational</h3>
+        <p>Learn mining concepts with interactive tools and real-time data.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Real-Time Stats</h3>
+        <p>Live BTC price, network difficulty, and hash rate updates.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💰</div>
+        <h3>Profitability Calculator</h3>
+        <p>Estimate your potential returns with our built-in calculator.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🏆</div>
+        <h3>Certificate</h3>
+        <p>Earn a certificate of completion to showcase your knowledge.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bitcoin Trends -->
+  <section class="content-section">
+    <h2 class="section-title">Bitcoin Price History</h2>
+    <div class="card">
+      <div class="timeline" id="btcTimeline"></div>
+    </div>
+  </section>
+
+  <!-- Trial Offer -->
+  <section class="content-section trial-section">
+    <div class="trial-card">
+      <h2>Start Learning Today</h2>
+      <p>Sign up and get access to all interactive tools and real-time market data.</p>
+      <div class="trial-cta">
+        <a href="/login.html" class="btn btn-primary btn-lg">Sign Up Free</a>
+        <a href="/certificate.html" class="btn btn-outline btn-lg">View Certificate</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="content-section">
+    <h2 class="section-title">Frequently Asked Questions</h2>
+    <div class="faq-list">
+      <details class="faq-item">
+        <summary>Is this real Bitcoin mining?</summary>
+        <p>No, this is an educational simulator. No real Bitcoin is mined or earned.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Do I need to pay anything?</summary>
+        <p>No, Qubators Cloud Miner is completely free to use.</p>
+      </details>
+      <details class="faq-item">
+        <summary>What will I learn?</summary>
+        <p>You'll learn about hash rate, mining economics, difficulty adjustment, and pool vs. solo mining.</p>
+      </details>
+      <details class="faq-item">
+        <summary>How do I earn a certificate?</summary>
+        <p>Complete all topics and click "Save All Progress" to earn your certificate.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="#calculator">Calculator</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="#features">Features</a>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <a href="#faq">FAQ</a>
+        <a href="/leaderboard.html">Leaderboard</a>
+        <a href="/certificate.html">Certificate</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="#">About Us</a>
+        <a href="#">Contact</a>
+        <a href="#">Privacy Policy</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>Qubators Cloud Miner — Educational simulation only. No real Bitcoin mining occurs.</p>
+      <p>&copy; 2026 Qubators. All rights reserved.</p>
+    </div>
+  </footer>
 
   <script src="/js/app.js"></script>
   <script>
     renderNav('home');
-    fetchMarketData();
+    requireAuth();
 
-    async function loadDashboard() {
-      const summary = document.getElementById('progressSummary');
-      const grid = document.getElementById('dashboardGrid');
+    // Live market data
+    async function loadMarketData() {
       try {
-        const progress = await loadProgress();
-        const stages = ['stage1', 'stage2', 'stage3'];
-        const labels = { stage1: 'Basics', stage2: 'Economics', stage3: 'Network' };
-        const completed = stages.filter(s => progress.find(p => p.stage_id === s && p.completed));
-        const pct = Math.round((completed.length / 3) * 100);
-
-        summary.innerHTML = `<p style="font-size:14px">${completed.length} of 3 stages completed (${pct}%)</p>`;
-
-        grid.innerHTML = stages.map(s => {
-          const done = progress.find(p => p.stage_id === s && p.completed);
-          return `<div class="dashboard-card">
-            <div class="v">${done ? '✅' : '⬜'}</div>
-            <div class="l">${labels[s]}</div>
-            <a href="/${s}.html"><button class="action" style="margin-top:8px">${done ? 'Review' : 'Start'}</button></a>
-          </div>`;
-        }).join('');
-
-        if (completed.length === 3) {
-          grid.innerHTML += `<div class="dashboard-card" style="border-color:var(--accent)">
-            <div class="v">🎓</div>
-            <div class="l">Certificate Earned!</div>
-            <a href="/certificate.html"><button class="action" style="margin-top:8px">View</button></a>
-          </div>`;
+        const data = await api('/market-data');
+        if (data.btc_price) document.getElementById('btcPrice').textContent = '$' + data.btc_price.toLocaleString();
+        if (data.difficulty_change_pct != null) {
+          const el = document.getElementById('diffChange');
+          el.textContent = (data.difficulty_change_pct > 0 ? '+' : '') + data.difficulty_change_pct.toFixed(1) + '%';
+          el.style.color = data.difficulty_change_pct >= 0 ? 'var(--accent2)' : 'var(--danger)';
+        }
+        if (data.network_hashrate) {
+          const eh = (data.network_hashrate / 1e18).toFixed(0);
+          document.getElementById('netHash').textContent = '~' + eh + ' EH/s';
+          const heroEl = document.getElementById('heroHashRate');
+          if (heroEl) heroEl.textContent = eh + ' EH/s';
         }
       } catch (e) {
-        summary.innerHTML = '<div class="error-box">Please log in to track your progress.</div>';
-        grid.innerHTML = '';
+        document.getElementById('btcPrice').textContent = '$109,200';
+        document.getElementById('diffChange').textContent = '+2.5%';
+        document.getElementById('netHash').textContent = '~740 EH/s';
       }
     }
-    loadDashboard();
+    loadMarketData();
+
+    // Calculator
+    const NET_HASH_TH = 740e6, BLOCKS_DAY = 450, REWARD = 3.125;
+
+    function calcProfit() {
+      const budget = parseFloat(document.getElementById('calcBudget').value) || 0;
+      const length = parseInt(document.getElementById('calcLength').value) || 12;
+      const btcPrice = parseFloat(document.getElementById('calcBtcPrice').value) || 120000;
+      const kwh = parseFloat(document.getElementById('calcKwh').value) || 0.12;
+
+      // Estimate hash rate based on budget (simplified)
+      const hashRate = Math.min(200, Math.max(10, budget / 15));
+      const power = hashRate * 22; // ~22W per TH/s
+
+      const share = hashRate / NET_HASH_TH;
+      const dailyBTC = share * BLOCKS_DAY * REWARD;
+      const monthlyRevenue = dailyBTC * 30 * btcPrice;
+      const monthlyPowerCost = (power / 1000) * 24 * 30 * kwh;
+      const monthlyProfit = monthlyRevenue - monthlyPowerCost;
+      const breakEvenDays = monthlyProfit > 0 ? budget / monthlyProfit * 30 : Infinity;
+
+      document.getElementById('calcHashRate').textContent = hashRate.toFixed(1) + ' TH/s';
+      document.getElementById('calcRevenue').textContent = '$' + monthlyRevenue.toFixed(2);
+      document.getElementById('calcPowerCost').textContent = '$' + monthlyPowerCost.toFixed(2);
+      document.getElementById('calcProfit').textContent = '$' + monthlyProfit.toFixed(2);
+      document.getElementById('calcProfit').style.color = monthlyProfit >= 0 ? 'var(--accent2)' : 'var(--danger)';
+      document.getElementById('calcBreakEven').textContent = isFinite(breakEvenDays) ? Math.round(breakEvenDays) + ' days' : 'never';
+    }
+    ['calcBudget', 'calcLength', 'calcBtcPrice', 'calcKwh'].forEach(id => document.getElementById(id).addEventListener('input', calcProfit));
+    calcProfit();
+
+    // Bitcoin timeline
+    const btcData = [
+      { year: '2010', price: '$0.08', change: '40,000%' },
+      { year: '2013', price: '$1,156', change: '8,800%' },
+      { year: '2017', price: '$20,089', change: '10,000%' },
+      { year: '2024', price: '$106,000', change: '1,716%' }
+    ];
+    const btcTl = document.getElementById('btcTimeline');
+    btcData.forEach((d, i) => {
+      const el = document.createElement('div');
+      el.className = 'timeline-item';
+      el.innerHTML = `<span class="timeline-year">${d.year}</span><span class="timeline-price">${d.price}</span><span class="timeline-change">${d.change}</span>`;
+      btcTl.appendChild(el);
+    });
   </script>
 </body>
 </html>

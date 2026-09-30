@@ -51,11 +51,15 @@
     </div>
 
     <div id="badgeArea"></div>
+    <div style="margin-top:20px">
+      <button class="action" onclick="saveStage()">Save Progress</button>
+    </div>
   </div>
 
   <script src="/js/app.js"></script>
   <script>
-    renderNav('stage2');
+    renderNav('economics');
+    requireAuth();
 
     const RIGS = [
       { name: "Antminer S19 XP", hash: 140, power: 3010, price: 2200 },
@@ -137,6 +141,15 @@
         };
         el.appendChild(l);
       });
+    }
+
+    async function saveStage() {
+      try {
+        await saveProgress('stage2', true, 1);
+        showBadge('badgeArea', '🏅 Stage 2 saved!');
+      } catch (e) {
+        showError('badgeArea', 'Failed to save. Please try again.');
+      }
     }
 
     fetchMarketData();

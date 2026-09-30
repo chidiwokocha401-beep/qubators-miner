@@ -18,10 +18,13 @@ async function api(path, options = {}) {
 
 // --- Auth functions ---
 async function signUp(email, password, displayName) {
-  const data = await api('/auth/signup', {
+  const res = await fetch(`${API_BASE}/api/auth/signup`, {
     method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password, displayName }),
   });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Sign up failed');
   authToken = data.accessToken;
   localStorage.setItem('qubators_token', authToken);
   currentUser = data.user;
@@ -29,10 +32,13 @@ async function signUp(email, password, displayName) {
 }
 
 async function signIn(email, password) {
-  const data = await api('/auth/login', {
+  const res = await fetch(`${API_BASE}/api/auth/login`, {
     method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
   });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Sign in failed');
   authToken = data.accessToken;
   localStorage.setItem('qubators_token', authToken);
   currentUser = data.user;
@@ -63,10 +69,11 @@ async function checkAuth() {
 function renderNav(activePage) {
   const pages = [
     { href: '/index.html', label: 'Home', key: 'home' },
-    { href: '/stage1.html', label: 'Stage 1: Basics', key: 'stage1' },
-    { href: '/stage2.html', label: 'Stage 2: Economics', key: 'stage2' },
-    { href: '/stage3.html', label: 'Stage 3: Network', key: 'stage3' },
+    { href: '/basics.html', label: 'Basics', key: 'basics' },
+    { href: '/economics.html', label: 'Economics', key: 'economics' },
+    { href: '/network.html', label: 'Network', key: 'network' },
     { href: '/leaderboard.html', label: 'Leaderboard', key: 'leaderboard' },
+    { href: '/certificate.html', label: 'Certificate', key: 'certificate' },
   ];
   const nav = document.createElement('nav');
   nav.className = 'nav';
@@ -136,10 +143,37 @@ async function loadProgress() {
 }
 
 async function saveProgress(stageId, completed, quizScore) {
-  return api('/progress', {
+  const result = await api('/progress', {
     method: 'POST',
     body: JSON.stringify({ stage_id: stageId, completed, quiz_score: quizScore }),
   });
+  if (completed) {
+    try {
+      const { progress } = await api('/progress');
+      const allDone = ['stage1', 'stage2', 'stage3'].every(s => progress.find(p => p.stage_id === s && p.completed));
+      if (allDone) {
+        window.location.href = '/certificate.html';
+      }
+    } catch (e) {}
+  }
+  return result;
+}
+
+// --- Auth gate: redirect to login if not authenticated ---
+async function requireAuth() {
+  if (!authToken) {
+    window.location.href = '/login.html';
+    return false;
+  }
+  try {
+    await api('/progress');
+    return true;
+  } catch (e) {
+    authToken = null;
+    localStorage.removeItem('qubators_token');
+    window.location.href = '/login.html';
+    return false;
+  }
 }
 
 // --- Helpers ---

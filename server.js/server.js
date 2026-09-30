@@ -11,11 +11,11 @@ require('dotenv').config();
 
 // --- Environment validation ---
 const REQUIRED_ENV = ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY', 'SUPABASE_ANON_KEY'];
-const missing = REQUIRED_ENV.filter(k => !process.env[k]);
+const missing = REQUIRED_ENV.filter(k => !process.env[k] || process.env[k].includes('your-'));
 if (missing.length > 0) {
-  console.error(`Missing required environment variables: ${missing.join(', ')}`);
-  console.error('Please fill in your Supabase credentials in server.js/.env');
-  process.exit(1);
+  console.warn(`Warning: Missing/placeholder Supabase credentials: ${missing.join(', ')}`);
+  console.warn('The server will start but database features will not work.');
+  console.warn('Update server.js/.env with your real Supabase keys to enable all features.\n');
 }
 
 const app = express();
@@ -61,50 +61,72 @@ async function requireAuth(req, res, next) {
 
 // --- Auth endpoints (proxy to Supabase Auth) ---
 app.post('/api/auth/signup', async (req, res) => {
-  const { email, password, displayName } = req.body;
-  if (!email || !password || !displayName) {
-    return res.status(400).json({ error: 'Email, password, and display name are required' });
+  try {
+    const { email, password, displayName } = req.body;
+    if (!email || !password || !displayName) {
+      return res.status(400).json({ error: 'Email, password, and display name are required' });
+    }
+    const { data, error } = await supabase.auth.admin.createUser({
+      email,
+      password,
+      user_metadata: { display_name: displayName },
+      email_confirm: true,
+    });
+    if (error) return res.status(400).json({ error: error.message });
+    await supabase.from('profiles').upsert({
+      id: data.user.id,
+      display_name: displayName,
+    });
+    // Sign in immediately to get a session
+    const { data: sessionData, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+    if (signInError) {
+      return res.json({ user: { id: data.user.id, email: data.user.email, displayName }, needsLogin: true });
+    }
+    res.json({
+      accessToken: sessionData.session.access_token,
+      user: { id: data.user.id, email: data.user.email, displayName },
+    });
+  } catch (err) {
+    log('error', 'signup failed', { error: err.message });
+    res.status(500).json({ error: 'Sign up failed. Please try again.' });
   }
-  const { data, error } = await supabase.auth.admin.createUser({
-    email,
-    password,
-    user_metadata: { display_name: displayName },
-    email_confirm: true,
-  });
-  if (error) return res.status(400).json({ error: error.message });
-  // Create profile
-  await supabase.from('profiles').upsert({
-    id: data.user.id,
-    display_name: displayName,
-  });
-  res.json({ user: { id: data.user.id, email: data.user.email, displayName } });
 });
 
 app.post('/api/auth/login', async (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    return res.status(400).json({ error: 'Email and password are required' });
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) return res.status(401).json({ error: error.message });
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('display_name')
+      .eq('id', data.user.id)
+      .single();
+    res.json({
+      accessToken: data.session.access_token,
+      user: {
+        id: data.user.id,
+        email: data.user.email,
+        displayName: profile?.display_name || 'Miner',
+      },
+    });
+  } catch (err) {
+    log('error', 'login failed', { error: err.message });
+    res.status(500).json({ error: 'Login failed. Please try again.' });
   }
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) return res.status(401).json({ error: error.message });
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('display_name')
-    .eq('id', data.user.id)
-    .single();
-  res.json({
-    accessToken: data.session.access_token,
-    user: {
-      id: data.user.id,
-      email: data.user.email,
-      displayName: profile?.display_name || 'Miner',
-    },
-  });
 });
 
 app.post('/api/auth/logout', requireAuth, async (req, res) => {
   await supabase.auth.signOut();
   res.json({ ok: true });
+});
+
+// --- Catch-all: serve index.html for frontend routes ---
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
 // --- GET /api/market-data ---
@@ -247,31 +269,42 @@ app.get('/api/leaderboard', async (req, res) => {
 
 // --- GET /api/certificate ---
 app.get('/api/certificate', requireAuth, async (req, res) => {
-  const { data: progress } = await supabase
-    .from('progress')
-    .select('stage_id, completed, completed_at')
-    .eq('user_id', req.userId);
-  const allDone = ['stage1', 'stage2', 'stage3'].every(
-    s => progress?.find(p => p.stage_id === s)?.completed
-  );
-  if (!allDone) {
-    return res.json({ complete: false, message: 'Complete all 3 stages to earn your certificate.' });
-  }
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('display_name')
-    .eq('id', req.userId)
-    .single();
-  const certificateId = `QCM-${req.userId.slice(0, 8).toUpperCase()}`;
-  res.json({
-    complete: true,
-    certificate: {
+  try {
+    const { data: progress, error } = await supabase
+      .from('progress')
+      .select('stage_id, completed, completed_at')
+      .eq('user_id', req.userId);
+    if (error) throw error;
+    const completedStages = (progress || []).filter(p => p.completed).map(p => p.stage_id);
+    const allDone = ['stage1', 'stage2', 'stage3'].every(s => completedStages.includes(s));
+    if (!allDone) {
+      return res.json({ complete: false, message: 'Complete all 3 stages to earn your certificate.', completedStages });
+    }
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('display_name')
+      .eq('id', req.userId)
+      .single();
+    const certificateId = `QCM-${req.userId.slice(0, 8).toUpperCase()}`;
+    await supabase.from('certificates').upsert({
       id: certificateId,
+      user_id: req.userId,
       display_name: profile?.display_name || 'Miner',
       issued_at: new Date().toISOString(),
-      url: `/certificate/${certificateId}`,
-    },
-  });
+    });
+    res.json({
+      complete: true,
+      certificate: {
+        id: certificateId,
+        display_name: profile?.display_name || 'Miner',
+        issued_at: new Date().toISOString(),
+        url: `/certificate/${certificateId}`,
+      },
+    });
+  } catch (err) {
+    log('error', 'certificate fetch failed', { error: err.message });
+    res.status(500).json({ error: 'Failed to check certificate status.' });
+  }
 });
 
 // --- Graceful shutdown ---

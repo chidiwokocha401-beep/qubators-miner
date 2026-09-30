@@ -40,11 +40,15 @@
 
     <div id="badgeArea"></div>
     <div id="finalCert"></div>
+    <div style="margin-top:20px">
+      <button class="action" onclick="saveStage()">Save Progress</button>
+    </div>
   </div>
 
   <script src="/js/app.js"></script>
   <script>
-    renderNav('stage3');
+    renderNav('network');
+    requireAuth();
 
     const NET_HASH_TH = 740e6, YOUR_HASH = 140, CURRENT_DIFFICULTY = 102e12;
 
@@ -118,6 +122,16 @@
         el.appendChild(l);
       });
     }
+
+    async function saveStage() {
+      try {
+        await saveProgress('stage3', true, 1);
+        showBadge('badgeArea', '🏅 Stage 3 saved!');
+      } catch (e) {
+        showError('badgeArea', 'Failed to save. Please try again.');
+      }
+    }
+
     renderQuiz();
   </script>
 </body>

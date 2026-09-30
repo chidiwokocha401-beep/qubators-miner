@@ -6,54 +6,93 @@
   <title>Qubators Cloud Miner — Certificate</title>
   <link rel="stylesheet" href="/css/style.css">
 </head>
-<body>
-  <div class="wrap">
-    <div class="disclaimer">⚠️ Educational simulation only. No real Bitcoin mining occurs and no cryptocurrency is earned or exchanged.</div>
-    <h1>Your Certificate</h1>
-    <p class="sub">Congratulations on completing all 3 stages!</p>
+<body class="certificate-page">
+  <div class="certificate-container">
+    <div class="certificate">
+      <!-- Left red stripe -->
+      <div class="stripe stripe-left"></div>
+      <!-- Right red stripe -->
+      <div class="stripe stripe-right"></div>
 
-    <div id="certContent"><div class="loading-box"><span class="spinner"></span> Loading...</div></div>
+      <!-- Header -->
+      <div class="cert-header">
+        <div class="cert-logo">
+          <span class="logo-icon">⛏️</span>
+          <span class="logo-text">Qubators</span>
+        </div>
+        <div class="cert-badge">
+          <div class="badge-title">🎓 Certified</div>
+          <div class="badge-sub">Blockchain Education</div>
+        </div>
+      </div>
+
+      <!-- Recipient -->
+      <div class="cert-recipient">
+        <h1 id="certName">Your Name</h1>
+        <h2>Bitcoin Mining Fundamentals</h2>
+        <p class="cert-subtitle">Certificate of Completion</p>
+        <p class="cert-date" id="certDate">September 29th, 2026</p>
+      </div>
+
+      <!-- Divider -->
+      <div class="cert-divider"></div>
+
+      <!-- Body -->
+      <div class="cert-body">
+        <p class="cert-desc">This certifies that <strong id="certNameBody">the recipient</strong> has successfully completed comprehensive training in:</p>
+        <ul class="cert-tasks">
+          <li>Bitcoin Mining Basics &amp; Hash Rate Fundamentals</li>
+          <li>Mining Economics, ROI &amp; Break-even Analysis</li>
+          <li>Network Difficulty Adjustment &amp; Pool vs. Solo Mining</li>
+        </ul>
+      </div>
+
+      <!-- Signature -->
+      <div class="cert-signature">
+        <div class="signature-line">
+          <svg width="120" height="40" viewBox="0 0 120 40" fill="none">
+            <path d="M10 30 Q 30 10, 50 25 T 90 20 Q 100 15, 110 25" stroke="#333" stroke-width="1.5" fill="none"/>
+            <path d="M15 35 Q 40 20, 60 30 T 100 28" stroke="#333" stroke-width="1" fill="none"/>
+          </svg>
+        </div>
+        <p class="sign-name">Qubators Team</p>
+        <p class="sign-title">Founder, Qubators Cloud Miner</p>
+      </div>
+
+      <!-- Footer -->
+      <div class="cert-footer">
+        <p>Certificate ID: <span id="certId">QCM-XXXXXXXX</span></p>
+        <p>Issued: <span id="certIssued">September 29th, 2026</span></p>
+        <p>Verify at: qubators.com/verify</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="cert-actions no-print">
+    <button class="action" onclick="window.print()">Print / Save as PDF</button>
+    <a href="/index.html"><button class="secondary">Back to Home</button></a>
   </div>
 
   <script src="/js/app.js"></script>
   <script>
     renderNav('');
+    requireAuth();
 
     async function loadCertificate() {
-      const content = document.getElementById('certContent');
       try {
         const data = await api('/certificate');
         if (!data.complete) {
-          content.innerHTML = `<div class="card" style="text-align:center">
-            <h2>🎓 Not Yet Earned</h2>
-            <p>${data.message || 'Complete all 3 stages to earn your certificate.'}</p>
-            <a href="/index.html"><button class="action">View Progress</button></a>
-          </div>`;
+          document.querySelector('.cert-recipient').innerHTML = '<h1>Not Yet Earned</h1><p class="cert-subtitle">Complete all topics to earn your certificate.</p>';
           return;
         }
         const cert = data.certificate;
-        content.innerHTML = `
-          <div class="certificate">
-            <h2>🎓 Certificate of Completion</h2>
-            <p style="font-size:16px;margin:8px 0">This certifies that</p>
-            <p style="font-size:22px;font-weight:700;color:var(--accent)">${cert.display_name}</p>
-            <p style="font-size:14px;margin:8px 0">has successfully completed all 3 stages of</p>
-            <p style="font-size:18px;font-weight:600">Qubators Cloud Miner</p>
-            <p style="font-size:13px;color:var(--muted);margin-top:12px">Basics · Economics · Network Effects</p>
-            <p class="cert-id">Certificate ID: ${cert.id}</p>
-            <p class="cert-id">Issued: ${new Date(cert.issued_at).toLocaleDateString()}</p>
-          </div>
-          <div style="text-align:center;margin-top:20px">
-            <button class="action" onclick="window.print()">Print / Save as PDF</button>
-            <a href="/leaderboard.html"><button class="secondary">View Leaderboard</button></a>
-          </div>
-        `;
+        document.getElementById('certName').textContent = cert.display_name;
+        document.getElementById('certNameBody').textContent = cert.display_name;
+        document.getElementById('certDate').textContent = new Date(cert.issued_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        document.getElementById('certIssued').textContent = new Date(cert.issued_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        document.getElementById('certId').textContent = cert.id;
       } catch (e) {
-        content.innerHTML = `<div class="card" style="text-align:center">
-          <h2>⚠️ Error</h2>
-          <p>Please log in to view your certificate.</p>
-          <a href="/login.html"><button class="action">Log In</button></a>
-        </div>`;
+        document.querySelector('.cert-recipient').innerHTML = '<h1>Error</h1><p class="cert-subtitle">Please log in to view your certificate.</p>';
       }
     }
     loadCertificate();
