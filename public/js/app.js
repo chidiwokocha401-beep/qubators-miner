@@ -1,6 +1,6 @@
 // Qubators Cloud Miner — Shared JS (auth, nav, API helpers)
 
-const API_BASE = 'https://qubators-miner-production.up.railway.app';
+const API_BASE = '';
 
 // --- Auth state ---
 let currentUser = null;
