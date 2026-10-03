@@ -1879,3 +1879,64 @@ button.secondary:hover { border-color: var(--accent); color: var(--accent); }
     gap: 24px;
   }
 }
+
+/* ===== REAL MINING PROVIDERS ===== */
+.mining-providers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.provider-card {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 16px;
+  padding: 32px 24px;
+  text-align: center;
+  text-decoration: none;
+  color: #333;
+  transition: all 0.3s ease;
+  display: block;
+}
+
+.provider-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-6px);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+}
+
+.provider-logo {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.provider-card h3 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 12px;
+  color: #1a1a2e;
+}
+
+.provider-card p {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.6;
+  margin: 0 0 20px;
+}
+
+.provider-cta {
+  display: inline-block;
+  padding: 10px 24px;
+  background: var(--accent);
+  color: #1a1206;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.provider-card:hover .provider-cta {
+  background: #e67e22;
+}

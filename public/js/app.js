@@ -1,6 +1,6 @@
 // Qubators Cloud Miner — Shared JS (auth, nav, API helpers)
 
-const API_BASE = '';
+const API_BASE = 'https://qubators-miner-production.up.railway.app';
 
 // --- Auth state ---
 let currentUser = null;
@@ -147,15 +147,6 @@ async function saveProgress(stageId, completed, quizScore) {
     method: 'POST',
     body: JSON.stringify({ stage_id: stageId, completed, quiz_score: quizScore }),
   });
-  if (completed) {
-    try {
-      const { progress } = await api('/progress');
-      const allDone = ['stage1', 'stage2', 'stage3'].every(s => progress.find(p => p.stage_id === s && p.completed));
-      if (allDone) {
-        window.location.href = '/certificate.html';
-      }
-    } catch (e) {}
-  }
   return result;
 }
 
