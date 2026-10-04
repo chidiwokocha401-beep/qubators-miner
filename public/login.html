@@ -7,32 +7,33 @@
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <div class="wrap">
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <main class="wrap" id="main-content" tabindex="-1">
     <div class="auth-box">
       <h1>Qubators Cloud Miner</h1>
-      <div class="card">
+      <form class="card" aria-labelledby="formTitle" onsubmit="event.preventDefault(); handleSubmit()">
         <h2 id="formTitle">Sign In</h2>
         <div class="field">
-          <label>Email</label>
-          <input id="email" type="email" placeholder="you@example.com" value="">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" required placeholder="you@example.com" value="">
         </div>
         <div class="field">
-          <label>Password</label>
-          <input id="password" type="password" placeholder="Your password" value="">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="Your password" value="">
         </div>
         <div class="field" id="nameField" style="display:none">
-          <label>Display Name</label>
-          <input id="displayName" type="text" placeholder="How should we call you?" value="">
+          <label for="displayName">Display Name</label>
+          <input id="displayName" name="displayName" type="text" autocomplete="nickname" disabled placeholder="How should we call you?" value="">
         </div>
-        <div id="authError"></div>
-        <button class="action" id="submitBtn" onclick="handleSubmit()">Sign In</button>
+        <div id="authError" role="alert" aria-atomic="true"></div>
+        <button class="action" id="submitBtn" type="submit">Sign In</button>
         <div class="alt">
           <span id="altText">Don't have an account?</span>
-          <a id="toggleMode" onclick="toggleMode()">Sign up</a>
+          <button class="text-button" type="button" id="toggleMode" aria-controls="nameField" aria-expanded="false">Sign up</button>
         </div>
-      </div>
+      </form>
     </div>
-  </div>
+  </main>
 
   <script src="/js/app.js"></script>
   <script>
@@ -42,11 +43,17 @@
       mode = mode === 'signin' ? 'signup' : 'signin';
       document.getElementById('formTitle').textContent = mode === 'signin' ? 'Sign In' : 'Sign Up';
       document.getElementById('nameField').style.display = mode === 'signup' ? 'block' : 'none';
+      document.getElementById('displayName').disabled = mode !== 'signup';
+      document.getElementById('displayName').required = mode === 'signup';
+      document.getElementById('password').autocomplete = mode === 'signup' ? 'new-password' : 'current-password';
+      document.getElementById('toggleMode').setAttribute('aria-expanded', String(mode === 'signup'));
       document.getElementById('submitBtn').textContent = mode === 'signin' ? 'Sign In' : 'Sign Up';
       document.getElementById('altText').textContent = mode === 'signin' ? "Don't have an account?" : 'Already have an account?';
       document.getElementById('toggleMode').textContent = mode === 'signin' ? 'Sign up' : 'Sign in';
       document.getElementById('authError').innerHTML = '';
     }
+
+    document.getElementById('toggleMode').addEventListener('click', toggleMode);
 
     async function handleSubmit() {
       const email = document.getElementById('email').value.trim();
@@ -72,7 +79,7 @@
         }
         window.location.href = '/index.html';
       } catch (e) {
-        errBox.innerHTML = `<div class="error-box">${e.message}</div>`;
+        showError('authError', e.message);
       }
     }
 

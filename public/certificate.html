@@ -7,6 +7,8 @@
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="certificate-page">
+  <a class="skip-link no-print" href="#main-content">Skip to main content</a>
+  <main id="main-content" tabindex="-1">
   <div class="certificate-container">
     <div class="certificate">
       <!-- Left red stripe -->
@@ -50,7 +52,7 @@
       <!-- Signature -->
       <div class="cert-signature">
         <div class="signature-line">
-          <svg width="120" height="40" viewBox="0 0 120 40" fill="none">
+          <svg width="120" height="40" viewBox="0 0 120 40" fill="none" aria-hidden="true" focusable="false">
             <path d="M10 30 Q 30 10, 50 25 T 90 20 Q 100 15, 110 25" stroke="#333" stroke-width="1.5" fill="none"/>
             <path d="M15 35 Q 40 20, 60 30 T 100 28" stroke="#333" stroke-width="1" fill="none"/>
           </svg>
@@ -70,8 +72,9 @@
 
   <div class="cert-actions no-print">
     <button class="action" onclick="window.print()">Print / Save as PDF</button>
-    <a href="/index.html"><button class="secondary">Back to Home</button></a>
+    <a href="/index.html" class="secondary">Back to Home</a>
   </div>
+  </main>
 
   <script src="/js/app.js"></script>
   <script>
