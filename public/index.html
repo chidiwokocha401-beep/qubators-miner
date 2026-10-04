@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="landing">
+  <a class="skip-link" href="#main-content">Skip to main content</a>
   <!-- Top Navigation -->
   <header class="top-nav">
     <div class="nav-left">
@@ -15,7 +16,7 @@
         <span class="logo-text">Qubators</span>
       </a>
     </div>
-    <nav class="nav-links">
+    <nav class="nav-links" aria-label="Homepage sections">
       <a href="#calculator">Calculator</a>
       <a href="#how-it-works">How It Works</a>
       <a href="#features">Features</a>
@@ -27,10 +28,11 @@
   </header>
 
   <!-- Hero Section -->
-  <main class="hero">
+  <main id="main-content" tabindex="-1">
+  <section class="hero" aria-labelledby="hero-title">
     <div class="hero-inner">
       <div class="hero-content">
-        <h1>Bitcoin Cloud Mining<br><span class="accent">Simulator</span></h1>
+        <h1 id="hero-title">Bitcoin Cloud Mining<br><span class="accent">Simulator</span></h1>
         <p class="hero-sub">Learn how Bitcoin mining works with our free interactive simulator. No real money, no real mining — just learning.</p>
         <div class="hero-cta">
           <a href="#calculator" class="btn btn-primary btn-lg">Start Simulating</a>
@@ -44,7 +46,7 @@
       </div>
       <div class="hero-visual">
         <div class="mining-animation">
-          <div class="rig-grid">
+          <div class="rig-grid" aria-hidden="true">
             <div class="rig"><div class="fan"></div><span>ASIC 1</span></div>
             <div class="rig"><div class="fan"></div><span>ASIC 2</span></div>
             <div class="rig"><div class="fan"></div><span>ASIC 3</span></div>
@@ -57,7 +59,7 @@
         </div>
       </div>
     </div>
-  </main>
+  </section>
 
   <!-- Live Market Data -->
   <section class="market-bar">
@@ -88,11 +90,11 @@
       <div class="calc-grid">
         <div class="calc-inputs">
           <div class="field">
-            <label>Budget (USD)</label>
+            <label for="calcBudget">Budget (USD)</label>
             <input id="calcBudget" type="number" value="2200" min="100" step="100">
           </div>
           <div class="field">
-            <label>Contract Length</label>
+            <label for="calcLength">Contract Length</label>
             <select id="calcLength">
               <option value="1">1 month</option>
               <option value="3">3 months</option>
@@ -102,7 +104,7 @@
             </select>
           </div>
           <div class="field">
-            <label>BTC Price Forecast</label>
+            <label for="calcBtcPrice">BTC Price Forecast</label>
             <select id="calcBtcPrice">
               <option value="100000">$100,000</option>
               <option value="120000" selected>$120,000</option>
@@ -111,11 +113,11 @@
             </select>
           </div>
           <div class="field">
-            <label>Electricity ($/kWh)</label>
+            <label for="calcKwh">Electricity ($/kWh)</label>
             <input id="calcKwh" type="number" value="0.12" step="0.01" min="0.01">
           </div>
         </div>
-        <div class="calc-results">
+        <div class="calc-results" role="status" aria-label="Profitability estimates">
           <div class="result-card">
             <span class="result-label">Est. Hash Rate</span>
             <span class="result-value" id="calcHashRate">140 TH/s</span>
@@ -239,7 +241,7 @@
         <span class="provider-cta">Visit Genesis →</span>
       </a>
     </div>
-    <p style="text-align:center;color:#999;font-size:13px;margin-top:24px">Disclaimer: Qubators is not affiliated with these providers. We may earn a referral commission.</p>
+    <p style="text-align:center;color:#666;font-size:13px;margin-top:24px">Disclaimer: Qubators is not affiliated with these providers. We may earn a referral commission.</p>
   </section>
 
   <!-- FAQ -->
@@ -266,22 +268,23 @@
   </section>
 
   <!-- Footer -->
+  </main>
   <footer class="footer">
     <div class="footer-inner">
       <div class="footer-col">
-        <h4>Product</h4>
+        <h2>Product</h2>
         <a href="#calculator">Calculator</a>
         <a href="#how-it-works">How It Works</a>
         <a href="#features">Features</a>
       </div>
       <div class="footer-col">
-        <h4>Resources</h4>
+        <h2>Resources</h2>
         <a href="#faq">FAQ</a>
         <a href="/leaderboard.html">Leaderboard</a>
         <a href="/certificate.html">Certificate</a>
       </div>
       <div class="footer-col">
-        <h4>Company</h4>
+        <h2>Company</h2>
         <a href="#">About Us</a>
         <a href="#">Contact</a>
         <a href="#">Privacy Policy</a>

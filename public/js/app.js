@@ -77,11 +77,15 @@ function renderNav(activePage) {
   ];
   const nav = document.createElement('nav');
   nav.className = 'nav';
+  nav.setAttribute('aria-label', 'Learning pages');
   pages.forEach(p => {
     const a = document.createElement('a');
     a.href = p.href;
     a.textContent = p.label;
-    if (p.key === activePage) a.classList.add('active');
+    if (p.key === activePage) {
+      a.classList.add('active');
+      a.setAttribute('aria-current', 'page');
+    }
     nav.appendChild(a);
   });
   const spacer = document.createElement('span');
@@ -92,10 +96,10 @@ function renderNav(activePage) {
     info.className = 'user-info';
     info.textContent = currentUser?.displayName || 'User';
     nav.appendChild(info);
-    const logout = document.createElement('a');
-    logout.href = '#';
+    const logout = document.createElement('button');
+    logout.type = 'button';
     logout.textContent = 'Logout';
-    logout.onclick = (e) => { e.preventDefault(); signOut(); };
+    logout.onclick = signOut;
     nav.appendChild(logout);
   } else {
     const login = document.createElement('a');
@@ -103,7 +107,9 @@ function renderNav(activePage) {
     login.textContent = 'Login';
     nav.appendChild(login);
   }
-  document.body.insertBefore(nav, document.body.firstChild);
+  const skipLink = document.querySelector('.skip-link');
+  if (skipLink) skipLink.after(nav);
+  else document.body.prepend(nav);
 }
 
 // --- Market data ---
@@ -177,5 +183,10 @@ function showBadge(areaId, text) {
 
 function showError(areaId, message) {
   const el = document.getElementById(areaId);
-  if (el) el.innerHTML = `<div class="error-box">${message}</div>`;
+  if (!el) return;
+  const errorBox = document.createElement('div');
+  errorBox.className = 'error-box';
+  errorBox.textContent = message;
+  if (el.getAttribute('role') !== 'alert') errorBox.setAttribute('role', 'alert');
+  el.replaceChildren(errorBox);
 }

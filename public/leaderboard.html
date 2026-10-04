@@ -7,16 +7,17 @@
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <div class="wrap">
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <main class="wrap" id="main-content" tabindex="-1">
     <div class="disclaimer">⚠️ Educational simulation only. No real Bitcoin mining occurs and no cryptocurrency is earned or exchanged.</div>
     <h1>Leaderboard</h1>
     <p class="sub">Fastest completers — who finished all 3 stages in the least time?</p>
 
     <div class="card">
       <h2>Top Miners</h2>
-      <div id="leaderboardContent"><div class="loading-box"><span class="spinner"></span> Loading...</div></div>
+      <div id="leaderboardContent" aria-live="polite"><div class="loading-box"><span class="spinner" aria-hidden="true"></span> Loading...</div></div>
     </div>
-  </div>
+  </main>
 
   <script src="/js/app.js"></script>
   <script>

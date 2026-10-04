@@ -7,15 +7,16 @@
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <div class="wrap">
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <main class="wrap" id="main-content" tabindex="-1">
     <div class="disclaimer">⚠️ Educational simulation only. No real Bitcoin mining occurs and no cryptocurrency is earned or exchanged.</div>
     <h1>Stage 1: Basics</h1>
     <p class="sub">What is mining, and how are rewards earned?</p>
 
     <div class="card">
       <h2>Network Data</h2>
-      <div class="livebar" id="livebar"><div class="loading-box"><span class="spinner"></span> Loading...</div></div>
-      <div id="marketError"></div>
+      <div class="livebar" id="livebar" role="status"><div class="loading-box"><span class="spinner" aria-hidden="true"></span> Loading...</div></div>
+      <div id="marketError" role="alert"></div>
       <div style="font-size:11px;color:var(--muted);margin-top:8px" id="marketTimestamp"></div>
     </div>
 
@@ -28,22 +29,22 @@
       <h2>2. Build your virtual rig</h2>
       <p style="font-size:13px;color:var(--muted)">Pick real ASIC models to add to your farm and see how hash rate and power draw scale.</p>
       <div class="rigs" id="rigs"></div>
-      <div class="farm" id="farm"></div>
-      <div class="results" id="results"></div>
+      <div class="farm" id="farm" aria-hidden="true"></div>
+      <div class="results" id="results" role="status" aria-label="Virtual rig estimates"></div>
     </div>
 
     <div class="card quiz">
       <h2>3. Quick check</h2>
       <p>What determines how many block-reward "chances" your rig gets per second?</p>
       <div id="quizOptions"></div>
-      <div id="quizFeedback" style="font-size:13px;margin-top:8px"></div>
+      <div id="quizFeedback" role="status" style="font-size:13px;margin-top:8px"></div>
     </div>
 
-    <div id="badgeArea"></div>
+    <div id="badgeArea" role="status"></div>
     <div style="margin-top:20px">
       <button class="action" onclick="saveStage()">Save Progress</button>
     </div>
-  </div>
+  </main>
 
   <script src="/js/app.js"></script>
   <script>
@@ -64,8 +65,15 @@
       RIGS.forEach((r, i) => {
         const b = document.createElement('button');
         b.className = 'rig' + (selected.has(i) ? ' selected' : '');
+        b.type = 'button';
+        b.setAttribute('aria-pressed', String(selected.has(i)));
         b.innerHTML = `<b>${r.name}</b>${r.hash} TH/s · ${r.power}W<br>${r.price}`;
-        b.onclick = () => { selected.has(i) ? selected.delete(i) : selected.add(i); renderRigs(); renderFarmAndResults(); };
+        b.onclick = () => {
+          selected.has(i) ? selected.delete(i) : selected.add(i);
+          b.classList.toggle('selected', selected.has(i));
+          b.setAttribute('aria-pressed', String(selected.has(i)));
+          renderFarmAndResults();
+        };
         el.appendChild(b);
       });
     }
@@ -116,10 +124,16 @@
       const el = document.getElementById('quizOptions');
       el.innerHTML = '';
       QUIZ.options.forEach(o => {
-        const l = document.createElement('label');
+        const l = document.createElement('button');
+        l.type = 'button';
+        l.setAttribute('aria-pressed', 'false');
         l.textContent = o.t;
         l.onclick = async () => {
-          [...el.children].forEach(c => c.classList.remove('correct', 'wrong'));
+          [...el.children].forEach(c => {
+            c.classList.remove('correct', 'wrong');
+            c.setAttribute('aria-pressed', 'false');
+          });
+          l.setAttribute('aria-pressed', 'true');
           l.classList.add(o.correct ? 'correct' : 'wrong');
           document.getElementById('quizFeedback').textContent = o.correct
             ? "Correct! Hash rate = attempts per second, which sets your odds of winning the next block."

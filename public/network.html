@@ -7,7 +7,8 @@
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <div class="wrap">
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <main class="wrap" id="main-content" tabindex="-1">
     <div class="disclaimer">⚠️ Educational simulation only. No real Bitcoin mining occurs and no cryptocurrency is earned or exchanged.</div>
     <h1>Stage 3: Network Effects</h1>
     <p class="sub">Difficulty adjustment &amp; pool vs. solo</p>
@@ -16,34 +17,34 @@
       <h2>1. Difficulty adjustment</h2>
       <p>Bitcoin targets one block every ~10 minutes. Every 2016 blocks (~2 weeks), <b>difficulty</b> adjusts up or down based on how much total hash rate joined or left the network — keeping block time roughly constant no matter how many miners show up.</p>
       <div class="row">
-        <div class="field"><label>Network hash rate change (%)</label><input id="hashChange" type="number" value="10"></div>
+        <div class="field"><label for="hashChange">Network hash rate change (%)</label><input id="hashChange" type="number" value="10"></div>
       </div>
-      <div class="results" id="diffResults"></div>
+      <div class="results" id="diffResults" role="status" aria-label="Difficulty estimates"></div>
     </div>
 
     <div class="card">
       <h2>2. Pool vs. solo mining</h2>
       <p>Solo mining means you only get paid if <i>you</i> find a block — rare and unpredictable for small miners. A <b>pool</b> combines many miners' hash rate; when the pool wins, the reward is split proportionally — small, steady payouts instead of a rare jackpot.</p>
-      <div class="toggle">
-        <button id="soloBtn" class="active">Solo (140 TH/s)</button>
-        <button id="poolBtn">Pool (140 TH/s share)</button>
+      <div class="toggle" role="group" aria-label="Mining payout mode">
+        <button id="soloBtn" class="active" aria-pressed="true" aria-controls="poolResults">Solo (140 TH/s)</button>
+        <button id="poolBtn" aria-pressed="false" aria-controls="poolResults">Pool (140 TH/s share)</button>
       </div>
-      <div class="results" id="poolResults"></div>
+      <div class="results" id="poolResults" role="status" aria-label="Payout estimates"></div>
     </div>
 
     <div class="card quiz">
       <h2>3. Quick check</h2>
       <p>If a huge wave of new miners joins the network, what happens to difficulty?</p>
       <div id="quizOptions"></div>
-      <div id="quizFeedback" style="font-size:13px;margin-top:8px"></div>
+      <div id="quizFeedback" role="status" style="font-size:13px;margin-top:8px"></div>
     </div>
 
-    <div id="badgeArea"></div>
-    <div id="finalCert"></div>
+    <div id="badgeArea" role="status"></div>
+    <div id="finalCert" aria-live="polite"></div>
     <div style="margin-top:20px">
       <button class="action" onclick="saveStage()">Save Progress</button>
     </div>
-  </div>
+  </main>
 
   <script src="/js/app.js"></script>
   <script>
@@ -68,6 +69,9 @@
     calcDifficulty();
 
     function renderPool(mode) {
+      const isSolo = mode === 'solo';
+      document.getElementById('soloBtn').setAttribute('aria-pressed', String(isSolo));
+      document.getElementById('poolBtn').setAttribute('aria-pressed', String(!isSolo));
       const share = YOUR_HASH / NET_HASH_TH;
       const el = document.getElementById('poolResults');
       if (mode === 'solo') {
@@ -100,10 +104,16 @@
       const el = document.getElementById('quizOptions');
       el.innerHTML = '';
       QUIZ.options.forEach(o => {
-        const l = document.createElement('label');
+        const l = document.createElement('button');
+        l.type = 'button';
+        l.setAttribute('aria-pressed', 'false');
         l.textContent = o.t;
         l.onclick = async () => {
-          [...el.children].forEach(c => c.classList.remove('correct', 'wrong'));
+          [...el.children].forEach(c => {
+            c.classList.remove('correct', 'wrong');
+            c.setAttribute('aria-pressed', 'false');
+          });
+          l.setAttribute('aria-pressed', 'true');
           l.classList.add(o.correct ? 'correct' : 'wrong');
           document.getElementById('quizFeedback').textContent = o.correct
             ? "Correct! More hash rate means blocks would come faster than 10 min, so difficulty rises to compensate."
@@ -115,7 +125,7 @@
               <div class="card" style="text-align:center;border-color:var(--accent)">
                 <h2>🎓 Certificate of Completion</h2>
                 <p>You've completed all 3 stages of Qubators Cloud Miner: Basics, Economics, and Network Effects.</p>
-                <a href="/certificate.html"><button class="action">View Certificate</button></a>
+                <a href="/certificate.html" class="action">View Certificate</a>
               </div>`;
           }
         };
