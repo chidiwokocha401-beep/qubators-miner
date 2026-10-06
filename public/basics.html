@@ -50,7 +50,8 @@
   <script>
     renderNav('basics');
     requireAuth();
-    let marketData = fetchMarketData();
+    let marketData = null;
+    fetchMarketData().then((d) => { marketData = d; renderFarmAndResults(); });
 
     const RIGS = [
       { name: "Antminer S19 XP", hash: 140, power: 3010, price: "~$2,200" },

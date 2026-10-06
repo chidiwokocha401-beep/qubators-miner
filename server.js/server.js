@@ -124,11 +124,6 @@ app.post('/api/auth/logout', requireAuth, async (req, res) => {
   res.json({ ok: true });
 });
 
-// --- Catch-all: serve index.html for frontend routes ---
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
-});
-
 // --- GET /api/market-data ---
 app.get('/api/market-data', async (req, res) => {
   try {
@@ -305,6 +300,11 @@ app.get('/api/certificate', requireAuth, async (req, res) => {
     log('error', 'certificate fetch failed', { error: err.message });
     res.status(500).json({ error: 'Failed to check certificate status.' });
   }
+});
+
+// --- Frontend fallback: serve index.html for non-API routes (must be last) ---
+app.get(/^(?!\/api).*/, (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
 // --- Graceful shutdown ---

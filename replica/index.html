@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Qubators Cloud Miner — Working Replica</title>
+<style>
+:root{--bg:#0f1216;--card:#171b21;--border:#262c35;--text:#e9edf2;--muted:#9aa4b2;--accent:#f7931a;--accent2:#3ddc97;--danger:#e05252}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:820px;margin:0 auto;padding:24px 18px 70px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:16px}
+.disclaimer{background:#3a2a12;color:#f7c98a;border:1px solid #6b4a1f;border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:16px}
+.nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}.nav a{padding:6px 12px;border-radius:18px;font-size:13px;text-decoration:none;color:var(--muted);border:1px solid var(--border)}
+.field{margin-bottom:10px}.field label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px}
+.field input,.field select{width:100%;padding:9px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:14px}
+button.action{background:var(--accent);color:#1a1206;border:none;border-radius:8px;padding:10px 16px;font-size:14px;font-weight:700;cursor:pointer;margin-top:10px}
+button.secondary{background:transparent;color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px 16px;font-size:14px;cursor:pointer;margin-top:10px;margin-left:8px}
+.rigs{display:flex;gap:10px;flex-wrap:wrap}.rig{border:1px solid var(--border);border-radius:10px;padding:10px;width:160px;font-size:12px;cursor:pointer;background:transparent;color:var(--text);text-align:left}.rig.selected{border-color:var(--accent);background:rgba(247,147,26,.1)}
+.farm{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;min-height:28px}.block{width:22px;height:22px;border-radius:4px;background:var(--accent)}
+.results{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:12px}.result{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center}.result .v{font-size:15px;font-weight:700}.result .l{font-size:11px;color:var(--muted)}
+.quiz label{display:block;padding:8px 10px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;font-size:14px}.quiz label.correct{border-color:var(--accent2);background:rgba(61,220,151,.12)}.quiz label.wrong{border-color:var(--danger);background:rgba(224,82,82,.12)}
+.badge{display:inline-block;background:var(--accent2);color:#062;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700;margin-top:10px}
+.error-box{background:rgba(224,82,82,.12);border:1px solid var(--danger);color:var(--danger);border-radius:8px;padding:10px 14px;font-size:13px;margin-top:10px}
+.livebar{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted)}.livebar b{color:var(--text)}
+.toggle{display:flex;gap:8px;margin-top:10px}.toggle button{flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);cursor:pointer}.toggle button.active{border-color:var(--accent);background:rgba(247,147,26,.12)}
+.cert{background:#fff;color:#222;border-radius:8px;padding:36px 30px;border-left:16px solid #e05252;border-right:16px solid #e05252}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="disclaimer">Working replica — educational simulation only. No real Bitcoin is mined. Runs 100% in your browser (localStorage).</div>
+<h1>Qubators Cloud Miner — Replica</h1>
+<p style="color:var(--muted);font-size:14px">Sign up, learn Basics → Economics → Network, save each stage, earn your certificate.</p>
+<div class="nav">
+<a href="#auth">Auth</a><a href="#market">Market</a><a href="#basics">Basics</a><a href="#economics">Economics</a><a href="#network">Network</a><a href="#leaderboard">Leaderboard</a><a href="#certificate">Certificate</a>
+<span style="flex:1"></span><span id="userInfo" style="font-size:13px;color:var(--muted)"></span>
+<button class="secondary hidden" id="logoutBtn" style="margin-top:0">Logout</button>
+</div>
+
+<div class="card" id="auth">
+<h2>1. Account (required)</h2>
+<div class="field"><label>Email</label><input id="email" type="email" placeholder="you@example.com"></div>
+<div class="field"><label>Password</label><input id="password" type="password" placeholder="min 4 chars"></div>
+<div class="field"><label>Display Name (for signup)</label><input id="displayName" type="text" placeholder="e.g. Chidi"></div>
+<div id="authError"></div>
+<button class="action" id="signupBtn">Sign Up</button>
+<button class="secondary" id="loginBtn">Log In</button>
+</div>
+
+<div id="app" class="hidden">
+<div class="card" id="market">
+<h2>Live Market Data</h2>
+<div class="livebar" id="livebar">Loading…</div>
+<div id="marketTs" style="font-size:11px;color:var(--muted);margin-top:6px"></div>
+</div>
+
+<div class="card" id="basics">
+<h2>Basics — Build your virtual rig</h2>
+<div class="rigs" id="rigs"></div>
+<div class="farm" id="farm"></div>
+<div class="results" id="rigResults"></div>
+<div class="card quiz" style="margin-top:12px">
+<h2>Quick check</h2>
+<p style="font-size:14px">What determines how many block-reward “chances” your rig gets per second?</p>
+<div id="quiz1"></div><div id="quiz1fb" style="font-size:13px"></div>
+</div>
+<div id="badge1"></div>
+<button class="action" id="save1">Save Basics Progress</button>
+</div>
+
+<div class="card" id="economics">
+<h2>Economics — ROI &amp; break-even</h2>
+<div class="field"><label>Rig</label><select id="rigSelect">
+<option value="0">Antminer S19 XP (140 TH/s, 3010W)</option>
+<option value="1">Whatsminer M50S (126 TH/s, 3276W)</option>
+<option value="2">Antminer S9 legacy (14 TH/s, 1372W)</option>
+</select></div>
+<div class="field"><label>Rig price (USD)</label><input id="price" type="number" value="2200"></div>
+<div class="field"><label>Electricity ($/kWh)</label><input id="kwh" type="number" step="0.01" value="0.12"></div>
+<div class="field"><label>BTC price (USD)</label><input id="btc" type="number" value="109200"></div>
+<div class="results" id="econResults"></div>
+<div class="card quiz" style="margin-top:12px">
+<h2>Quick check</h2>
+<p style="font-size:14px">If electricity costs more than your rig earns per day, what happens?</p>
+<div id="quiz2"></div><div id="quiz2fb" style="font-size:13px"></div>
+</div>
+<div id="badge2"></div>
+<button class="action" id="save2">Save Economics Progress</button>
+</div>
+
+<div class="card" id="network">
+<h2>Network — Difficulty &amp; pool vs solo</h2>
+<div class="field"><label>Network hash rate change (%)</label><input id="hashChange" type="number" value="10"></div>
+<div class="results" id="diffResults"></div>
+<div class="toggle"><button id="soloBtn" class="active">Solo (140 TH/s)</button><button id="poolBtn">Pool share</button></div>
+<div class="results" id="poolResults"></div>
+<div class="card quiz" style="margin-top:12px">
+<h2>Quick check</h2>
+<p style="font-size:14px">If a huge wave of new miners joins, what happens to difficulty?</p>
+<div id="quiz3"></div><div id="quiz3fb" style="font-size:13px"></div>
+</div>
+<div id="badge3"></div>
+<button class="action" id="save3">Save Network Progress</button>
+</div>
+
+<div class="card" id="leaderboard">
+<h2>Leaderboard</h2>
+<div id="lb"></div>
+</div>
+
+<div class="card" id="certificate">
+<h2>Certificate</h2>
+<div id="certArea"></div>
+<button class="action" id="printBtn">Print / Save as PDF</button>
+</div>
+</div>
+</div>
+
+<script>
+const RIGS=[{name:"Antminer S19 XP",hash:140,power:3010},{name:"Whatsminer M50S",hash:126,power:3276},{name:"Antminer S9 (legacy)",hash:14,power:1372}];
+const NET_TH=740e6, BLOCKS=450, REWARD=3.125;
+let market={btc_price:109200,difficulty_change_pct:2.5,network_hashrate:740e18,fetched_at:new Date().toISOString(),source:"sample"};
+let selected=new Set(), user=null;
+
+const store={
+  users(){try{return JSON.parse(localStorage.getItem("replica_users")||"{}")}catch(e){return{}}},
+  saveUsers(u){localStorage.setItem("replica_users",JSON.stringify(u))},
+  progress(){return JSON.parse(localStorage.getItem("replica_progress_"+(user||""))||"{}")},
+  saveProgress(p){localStorage.setItem("replica_progress_"+user,JSON.stringify(p))},
+  board(){try{return JSON.parse(localStorage.getItem("replica_board")||"[]")}catch(e){return[]}},
+  saveBoard(b){localStorage.setItem("replica_board",JSON.stringify(b))}
+};
+
+function err(id,msg){document.getElementById(id).innerHTML=msg?'<div class="error-box">'+msg+'</div>':''}
+
+document.getElementById("signupBtn").onclick=()=>{
+  const email=document.getElementById("email").value.trim().toLowerCase();
+  const pw=document.getElementById("password").value;
+  const name=document.getElementById("displayName").value.trim();
+  if(!email||!pw||!name) return err("authError","Fill email, password and display name.");
+  if(pw.length<4) return err("authError","Password must be at least 4 characters.");
+  const users=store.users();
+  if(users[email]) return err("authError","Email already registered. Log in instead.");
+  users[email]={pw,name,created:new Date().toISOString()};
+  store.saveUsers(users);
+  loginAs(email);
+};
+document.getElementById("loginBtn").onclick=()=>{
+  const email=document.getElementById("email").value.trim().toLowerCase();
+  const pw=document.getElementById("password").value;
+  const users=store.users();
+  if(!users[email]||users[email].pw!==pw) return err("authError","Invalid email or password.");
+  loginAs(email);
+};
+function loginAs(email){
+  user=email; localStorage.setItem("replica_session",email);
+  const users=store.users();
+  document.getElementById("userInfo").textContent=users[email].name+" ("+email+")";
+  document.getElementById("logoutBtn").classList.remove("hidden");
+  document.getElementById("app").classList.remove("hidden");
+  document.getElementById("auth").classList.add("hidden");
+  err("authError","");
+  refreshAll();
+}
+document.getElementById("logoutBtn").onclick=()=>{
+  user=null; localStorage.removeItem("replica_session");
+  document.getElementById("app").classList.add("hidden");
+  document.getElementById("auth").classList.remove("hidden");
+  document.getElementById("logoutBtn").classList.add("hidden");
+  document.getElementById("userInfo").textContent="";
+};
+(function init(){
+  const s=localStorage.getItem("replica_session");
+  if(s&&store.users()[s]){document.getElementById("email").value=s;loginAs(s);}
+})();
+
+async function loadMarket(){
+  try{
+    const [p,d,h]=await Promise.all([
+      fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd").then(r=>r.json()),
+      fetch("https://mempool.space/api/v1/difficulty-adjustment").then(r=>r.json()),
+      fetch("https://mempool.space/api/v1/mining/hashrate/1w").then(r=>r.json())
+    ]);
+    market={btc_price:p.bitcoin.usd,difficulty_change_pct:d.difficultyChange,network_hashrate:h.hashrate||740e18,fetched_at:new Date().toISOString(),source:"live"};
+  }catch(e){/* keep sample */}
+  const eh=(market.network_hashrate/1e18).toFixed(0);
+  document.getElementById("livebar").innerHTML=
+    "<div>BTC price: <b>$"+Number(market.btc_price).toLocaleString()+"</b></div>"+
+    "<div>Difficulty change: <b>"+(market.difficulty_change_pct>0?"+":"")+Number(market.difficulty_change_pct).toFixed(1)+"%</b></div>"+
+    "<div>Network hash rate: <b>~"+eh+" EH/s</b></div>";
+  document.getElementById("marketTs").textContent="Data as of "+new Date(market.fetched_at).toLocaleTimeString()+" ("+market.source+")";
+  const btc=document.getElementById("btc"); if(btc&&market.source==="live") btc.value=market.btc_price;
+}
+
+function renderRigs(){
+  const el=document.getElementById("rigs"); el.innerHTML="";
+  RIGS.forEach((r,i)=>{
+    const b=document.createElement("button");
+    b.className="rig"+(selected.has(i)?" selected":"");
+    b.innerHTML="<b>"+r.name+"</b>"+r.hash+" TH/s · "+r.power+"W";
+    b.onclick=()=>{selected.has(i)?selected.delete(i):selected.add(i);renderRigs();renderFarm();};
+    el.appendChild(b);
+  });
+}
+function totals(){
+  let h=0,p=0; selected.forEach(i=>{h+=RIGS[i].hash;p+=RIGS[i].power}); return {h,p};
+}
+function renderFarm(){
+  const farm=document.getElementById("farm"); farm.innerHTML="";
+  const {h,p}=totals();
+  selected.forEach(i=>{
+    const n=Math.max(1,Math.round(RIGS[i].hash/20));
+    for(let j=0;j<n;j++){const d=document.createElement("div");d.className="block";farm.appendChild(d);}
+  });
+  const netTH=(market.network_hashrate/1e18)*1e6;
+  const share=h/netTH, btc=market.btc_price;
+  const dBTC=share*BLOCKS*REWARD, dUSD=dBTC*btc, dCost=(p/1000)*24*0.12;
+  document.getElementById("rigResults").innerHTML=
+    '<div class="result"><div class="v">'+h+' TH/s</div><div class="l">Your hash rate</div></div>'+
+    '<div class="result"><div class="v">'+p+' W</div><div class="l">Power draw</div></div>'+
+    '<div class="result"><div class="v">'+dBTC.toFixed(8)+'</div><div class="l">Est. BTC/day</div></div>'+
+    '<div class="result"><div class="v">$'+dUSD.toFixed(2)+'</div><div class="l">Est. value/day</div></div>'+
+    '<div class="result"><div class="v">$'+dCost.toFixed(2)+'</div><div class="l">Est. power cost/day</div></div>';
+}
+function calcEcon(){
+  const rig=RIGS[parseInt(document.getElementById("rigSelect").value)||0];
+  const price=parseFloat(document.getElementById("price").value)||0;
+  const kwh=parseFloat(document.getElementById("kwh").value)||0;
+  const btc=parseFloat(document.getElementById("btc").value)||0;
+  const share=rig.hash/NET_TH, dBTC=share*BLOCKS*REWARD;
+  const rev=dBTC*btc, cost=(rig.power/1000)*24*kwh, profit=rev-cost;
+  const be=profit>0?price/profit:Infinity;
+  document.getElementById("econResults").innerHTML=
+    '<div class="result"><div class="v">$'+rev.toFixed(2)+'</div><div class="l">Daily revenue</div></div>'+
+    '<div class="result"><div class="v">$'+cost.toFixed(2)+'</div><div class="l">Power cost</div></div>'+
+    '<div class="result"><div class="v">$'+profit.toFixed(2)+'</div><div class="l">Daily profit</div></div>'+
+    '<div class="result"><div class="v">'+(isFinite(be)?Math.round(be)+" days":"never")+'</div><div class="l">Break-even</div></div>';
+}
+["rigSelect","price","kwh","btc"].forEach(id=>document.getElementById(id).addEventListener("input",calcEcon));
+function calcDiff(){
+  const ch=parseFloat(document.getElementById("hashChange").value)||0;
+  const nd=102*(1+ch/100);
+  document.getElementById("diffResults").innerHTML=
+    '<div class="result"><div class="v">'+(ch>=0?"+":"")+ch+'%</div><div class="l">Hash change</div></div>'+
+    '<div class="result"><div class="v">'+(ch>=0?"+":"")+ch+'%</div><div class="l">Difficulty adjusts</div></div>'+
+    '<div class="result"><div class="v">~'+nd.toFixed(1)+' T</div><div class="l">New difficulty</div></div>'+
+    '<div class="result"><div class="v">~10 min</div><div class="l">Block time</div></div>';
+}
+document.getElementById("hashChange").addEventListener("input",calcDiff);
+function renderPool(mode){
+  const share=140/NET_TH, el=document.getElementById("poolResults");
+  if(mode==="solo"){
+    const days=1/(share*450);
+    el.innerHTML='<div class="result"><div class="v">~'+Math.round(days)+' days</div><div class="l">Avg wait</div></div><div class="result"><div class="v">3.125 BTC</div><div class="l">Full reward</div></div><div class="result"><div class="v">High</div><div class="l">Variance</div></div>';
+  }else{
+    const d=share*450*3.125;
+    el.innerHTML='<div class="result"><div class="v">Daily</div><div class="l">Frequency</div></div><div class="result"><div class="v">'+d.toFixed(8)+'</div><div class="l">Share/day</div></div><div class="result"><div class="v">Low</div><div class="l">Variance</div></div>';
+  }
+}
+document.getElementById("soloBtn").onclick=()=>{document.getElementById("soloBtn").classList.add("active");document.getElementById("poolBtn").classList.remove("active");renderPool("solo")};
+document.getElementById("poolBtn").onclick=()=>{document.getElementById("poolBtn").classList.add("active");document.getElementById("soloBtn").classList.remove("active");renderPool("pool")};
+
+function quiz(elId,fbId,badgeId,options,okMsg){
+  const el=document.getElementById(elId); el.innerHTML="";
+  options.forEach(o=>{
+    const l=document.createElement("label"); l.textContent=o.t;
+    l.onclick=()=>{
+      [...el.children].forEach(c=>c.classList.remove("correct","wrong"));
+      l.classList.add(o.correct?"correct":"wrong");
+      document.getElementById(fbId).textContent=o.correct?okMsg:"Not quite — try again.";
+      if(o.correct) document.getElementById(badgeId).innerHTML='<span class="badge">'+okMsg.split("!")[0]+'!</span>';
+    };
+    el.appendChild(l);
+  });
+}
+function markComplete(stage){
+  const p=store.progress(); p[stage]={completed:true,completed_at:new Date().toISOString(),quiz_score:1};
+  store.saveProgress(p);
+  const done=["stage1","stage2","stage3"].every(s=>p[s]&&p[s].completed);
+  if(done){
+    const users=store.users(), b=store.board();
+    if(!b.find(x=>x.email===user)) b.push({display_name:users[user].name,metric:Date.now()});
+    store.saveBoard(b);
+  }
+  refreshAll();
+}
+document.getElementById("save1").onclick=()=>markComplete("stage1");
+document.getElementById("save2").onclick=()=>markComplete("stage2");
+document.getElementById("save3").onclick=()=>markComplete("stage3");
+document.getElementById("printBtn").onclick=()=>window.print();
+
+function refreshAll(){
+  const p=store.progress();
+  const b1=document.getElementById("badge1"),b2=document.getElementById("badge2"),b3=document.getElementById("badge3");
+  if(p.stage1) b1.innerHTML='<span class="badge">Basics saved</span>';
+  if(p.stage2) b2.innerHTML='<span class="badge">Economics saved</span>';
+  if(p.stage3) b3.innerHTML='<span class="badge">Network saved</span>';
+  const b=store.board().sort((a,c)=>a.metric-c.metric).slice(0,20);
+  document.getElementById("lb").innerHTML=b.length?"<ul>"+b.map((x,i)=>"<li>"+(i+1)+". "+x.display_name+" — "+new Date(x.metric).toLocaleDateString()+"</li>").join("")+"</ul>":"No completions yet. Be the first!";
+  const done=["stage1","stage2","stage3"].every(s=>p[s]&&p[s].completed);
+  const users=store.users(), name=user?(users[user]||{}).name:"Your Name";
+  document.getElementById("certArea").innerHTML=done?
+    '<div class="cert"><h2>Certificate of Completion</h2><p>This certifies that</p><h1>'+name+'</h1><p>completed Bitcoin Mining Fundamentals: Basics, Economics, Network Effects.</p><p>Certificate ID: QCM-'+String(Date.now()).slice(-8)+'</p><p>Signed: Chidiwokocha, Head of Qubators Team</p></div>'
+    :'<p style="color:var(--muted)">Complete and save all 3 stages to earn your certificate ('+[p.stage1?"x":"·",p.stage2?"x":"·",p.stage3?"x":"·"].join(" ")+').</p>';
+}
+
+renderRigs(); renderFarm(); calcEcon(); calcDiff(); renderPool("solo"); loadMarket();
+quiz("quiz1","quiz1fb","badge1",[{t:"Your hash rate (guesses per second)",correct:true},{t:"How much BTC you already own",correct:false},{t:"Your internet connection speed",correct:false}],"Correct! Hash rate sets your odds!");
+quiz("quiz2","quiz2fb","badge2",[{t:"Profit turns negative — you lose money",correct:true},{t:"Nothing — always profitable",correct:false},{t:"You get refunded",correct:false}],"Correct! Costs above revenue mean loss!");
+quiz("quiz3","quiz3fb","badge3",[{t:"Difficulty increases to keep ~10 min blocks",correct:true},{t:"Difficulty stays the same",correct:false},{t:"Blocks speed up forever",correct:false}],"Correct! Difficulty rises to compensate!");
+refreshAll();
+</script>
+</body>
+</html>

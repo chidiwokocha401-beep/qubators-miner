@@ -4,13 +4,26 @@
 const { createClient } = require('@supabase/supabase-js');
 const fetch = require('node-fetch');
 
-// --- Environment variables ---
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const CACHE_TTL_MS = 60 * 1000;
 
-// --- Supabase client ---
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+function getSupabase() {
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return null;
+  return createClient(url, key);
+}
+
+function normalizeApiPath(rawPath) {
+  let p = rawPath || '/';
+  const prefix = '/.netlify/functions/api';
+  if (p.startsWith(prefix)) p = p.slice(prefix.length) || '/';
+  if (p !== '/' && !p.startsWith('/api/') && p !== '/api') {
+    p = '/api' + (p.startsWith('/') ? p : '/' + p);
+  }
+  const q = p.indexOf('?');
+  if (q !== -1) p = p.slice(0, q);
+  return p || '/';
+}
 
 // --- Logger ---
 function log(level, msg, meta) {
@@ -28,14 +41,24 @@ async function requireAuth(event) {
 
 // --- Main handler ---
 exports.handler = async (event, context) => {
-  const path = event.path.replace('/.netlify/functions/api', '') || '/';
+  const path = normalizeApiPath(event.path);
   const method = event.httpMethod.toUpperCase();
-  const body = event.body ? JSON.parse(event.body) : {};
+  let body = {};
+  try {
+    body = event.body ? JSON.parse(event.body) : {};
+  } catch (e) {
+    return { statusCode: 400, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Invalid JSON body' }) };
+  }
 
   try {
-    // --- Health check ---
+    // --- Health check (no Supabase needed) ---
     if (path === '/api/health' && method === 'GET') {
-      return { statusCode: 200, body: JSON.stringify({ status: 'ok', uptime: process.uptime() }) };
+      return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'ok', uptime: process.uptime() }) };
+    }
+
+    const supabase = getSupabase();
+    if (!supabase) {
+      return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Server misconfigured: SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY missing' }) };
     }
 
     // --- Auth endpoints ---
