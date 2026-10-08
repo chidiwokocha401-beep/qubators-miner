@@ -253,6 +253,11 @@ process.on('SIGTERM', () => { log('info', 'SIGTERM received'); process.exit(0); 
 process.on('SIGINT', () => { log('info', 'SIGINT received'); process.exit(0); });
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  log('info', `Qubators API listening on :${PORT}`);
-});
+store.ensureSchema()
+  .then(() => log('info', 'Database tables ready'))
+  .catch((e) => log('error', 'Database setup failed', { error: e.message }))
+  .finally(() => {
+    app.listen(PORT, () => {
+      log('info', `Qubators API listening on :${PORT}`);
+    });
+  });

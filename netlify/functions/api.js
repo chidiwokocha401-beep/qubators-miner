@@ -53,6 +53,14 @@ exports.handler = async (event) => {
     return json(500, { error: 'Server misconfigured: database URL missing (NETLIFY_DATABASE_URL)' });
   }
 
+  // Auto-create tables on first use (idempotent).
+  try {
+    await store.ensureSchema();
+  } catch (e) {
+    console.log(JSON.stringify({ level: 'error', msg: 'Database setup failed', error: e.message }));
+    return json(500, { error: 'Database setup failed: ' + e.message });
+  }
+
   try {
     // --- Auth: sign up (creates account + logs straight in) ---
     if (path === '/api/auth/signup' && method === 'POST') {

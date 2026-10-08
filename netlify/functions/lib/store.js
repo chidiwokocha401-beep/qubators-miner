@@ -16,6 +16,36 @@ function configured() {
   return !!(process.env.NETLIFY_DATABASE_URL || process.env.DATABASE_URL);
 }
 
+// --- Auto-migration: create tables on first use (idempotent, safe to re-run) ---
+const fs = require('fs');
+const path = require('path');
+let _schemaPromise = null;
+
+function ensureSchema() {
+  if (!db()) return Promise.resolve();
+  if (!_schemaPromise) {
+    _schemaPromise = (async () => {
+      const sql = db();
+      const file = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
+      const cleaned = file
+        .split('\n')
+        .filter((line) => !line.trim().startsWith('--'))
+        .join('\n');
+      const statements = cleaned
+        .split(';')
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0);
+      for (const stmt of statements) {
+        await sql(stmt);
+      }
+    })().catch((e) => {
+      _schemaPromise = null; // retry on next request
+      throw e;
+    });
+  }
+  return _schemaPromise;
+}
+
 // --- Passwords (scrypt, built-in crypto, no extra deps) ---
 function hashPassword(password, salt) {
   const s = salt || crypto.randomBytes(16).toString('hex');
@@ -168,6 +198,7 @@ async function issueCertificate(userId, displayName) {
 module.exports = {
   db,
   configured,
+  ensureSchema,
   hashPassword,
   verifyPassword,
   newToken,

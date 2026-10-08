@@ -1,6 +1,7 @@
 -- Qubators Cloud Miner — Database schema for Netlify DB (Neon Postgres)
--- Run this in your Neon / Netlify DB SQL runner. No Supabase, no RLS roles needed
--- (access control is enforced in the API code, which uses a single server-side role).
+-- Canonical copy. This file is auto-applied by the API on boot (see lib/store.js),
+-- so you normally do NOT need to run it by hand. Run it manually only if you want
+-- to inspect or pre-create the tables in the Neon SQL runner.
 
 create table if not exists users (
   id uuid primary key,
