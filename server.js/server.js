@@ -1,21 +1,20 @@
-// Qubators Cloud Miner — backend (Node.js + Express + Supabase)
-// npm install express @supabase/supabase-js node-fetch cors dotenv express-rate-limit
+// Qubators Cloud Miner — local dev server (Node.js + Express)
+// Uses the SAME shared store as the Netlify Function: Netlify DB (Neon Postgres).
+// Set DATABASE_URL (or NETLIFY_DATABASE_URL) in server.js/.env — no Supabase anywhere.
+// npm install express cors dotenv express-rate-limit node-fetch @neondatabase/serverless
 
 const express = require('express');
 const fetch = require('node-fetch');
-const { createClient } = require('@supabase/supabase-js');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
+const store = require('../netlify/functions/lib/store');
 require('dotenv').config();
 
-// --- Environment validation ---
-const REQUIRED_ENV = ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY', 'SUPABASE_ANON_KEY'];
-const missing = REQUIRED_ENV.filter(k => !process.env[k] || process.env[k].includes('your-'));
-if (missing.length > 0) {
-  console.warn(`Warning: Missing/placeholder Supabase credentials: ${missing.join(', ')}`);
+if (!store.configured()) {
+  console.warn('Warning: no DATABASE_URL / NETLIFY_DATABASE_URL set.');
   console.warn('The server will start but database features will not work.');
-  console.warn('Update server.js/.env with your real Supabase keys to enable all features.\n');
+  console.warn('Add DATABASE_URL to server.js/.env to enable all features.\n');
 }
 
 const app = express();
@@ -31,18 +30,19 @@ const apiLimiter = rateLimit({
 });
 app.use('/api/', apiLimiter);
 
-// --- Health check ---
+// --- Health check (no database needed) ---
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', uptime: process.uptime() });
+  res.json({ status: 'ok', uptime: process.uptime(), db: store.configured() });
 });
 
-// --- Supabase client (service-role, server-side only) ---
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
-
-const CACHE_TTL_MS = 60 * 1000;
+// --- Database guard: every other /api route needs a database ---
+app.use('/api/', (req, res, next) => {
+  if (req.originalUrl.split('?')[0] === '/api/health') return next();
+  if (!store.configured()) {
+    return res.status(500).json({ error: 'Server misconfigured: database URL missing (DATABASE_URL)' });
+  }
+  next();
+});
 
 // --- Logger ---
 function log(level, msg, meta) {
@@ -51,41 +51,36 @@ function log(level, msg, meta) {
 
 // --- Auth middleware ---
 async function requireAuth(req, res, next) {
-  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  const token = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
   if (!token) return res.status(401).json({ error: 'Missing token' });
-  const { data, error } = await supabase.auth.getUser(token);
-  if (error || !data.user) return res.status(401).json({ error: 'Invalid session' });
-  req.userId = data.user.id;
-  next();
+  try {
+    const user = await store.getUserByToken(token);
+    if (!user) return res.status(401).json({ error: 'Invalid session' });
+    req.user = user;
+    next();
+  } catch (err) {
+    res.status(500).json({ error: 'Auth check failed' });
+  }
 }
 
-// --- Auth endpoints (proxy to Supabase Auth) ---
+// --- Auth endpoints ---
 app.post('/api/auth/signup', async (req, res) => {
   try {
     const { email, password, displayName } = req.body;
     if (!email || !password || !displayName) {
       return res.status(400).json({ error: 'Email, password, and display name are required' });
     }
-    const { data, error } = await supabase.auth.admin.createUser({
-      email,
-      password,
-      user_metadata: { display_name: displayName },
-      email_confirm: true,
-    });
-    if (error) return res.status(400).json({ error: error.message });
-    await supabase.from('profiles').upsert({
-      id: data.user.id,
-      display_name: displayName,
-    });
-    // Sign in immediately to get a session
-    const { data: sessionData, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-    if (signInError) {
-      return res.json({ user: { id: data.user.id, email: data.user.email, displayName }, needsLogin: true });
+    if (String(password).length < 4) {
+      return res.status(400).json({ error: 'Password must be at least 4 characters' });
     }
-    res.json({
-      accessToken: sessionData.session.access_token,
-      user: { id: data.user.id, email: data.user.email, displayName },
-    });
+    try {
+      const user = await store.createUser(email, password, displayName);
+      const accessToken = await store.createSession(user.id);
+      res.json({ accessToken, user });
+    } catch (e) {
+      if (e && e.code === 'EXISTS') return res.status(409).json({ error: e.message });
+      throw e;
+    }
   } catch (err) {
     log('error', 'signup failed', { error: err.message });
     res.status(500).json({ error: 'Sign up failed. Please try again.' });
@@ -98,21 +93,10 @@ app.post('/api/auth/login', async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password are required' });
     }
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) return res.status(401).json({ error: error.message });
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('display_name')
-      .eq('id', data.user.id)
-      .single();
-    res.json({
-      accessToken: data.session.access_token,
-      user: {
-        id: data.user.id,
-        email: data.user.email,
-        displayName: profile?.display_name || 'Miner',
-      },
-    });
+    const user = await store.verifyUser(email, password);
+    if (!user) return res.status(401).json({ error: 'Invalid email or password' });
+    const accessToken = await store.createSession(user.id);
+    res.json({ accessToken, user });
   } catch (err) {
     log('error', 'login failed', { error: err.message });
     res.status(500).json({ error: 'Login failed. Please try again.' });
@@ -120,17 +104,20 @@ app.post('/api/auth/login', async (req, res) => {
 });
 
 app.post('/api/auth/logout', requireAuth, async (req, res) => {
-  await supabase.auth.signOut();
+  const token = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+  if (token) await store.deleteSession(token);
   res.json({ ok: true });
 });
+
+const CACHE_TTL_MS = 60 * 1000;
 
 // --- GET /api/market-data ---
 app.get('/api/market-data', async (req, res) => {
   try {
-    const { data: rows } = await supabase.from('market_data_cache').select('*');
-    const cache = Object.fromEntries((rows || []).map(r => [r.key, r]));
+    const cache = await store.getMarketCache();
     const now = Date.now();
-    const stale = !cache.btc_price || (now - new Date(cache.btc_price.fetched_at).getTime()) > CACHE_TTL_MS;
+    const stamped = cache.btc_price && cache.btc_price.fetchedAt;
+    const stale = !stamped || now - new Date(stamped).getTime() > CACHE_TTL_MS;
 
     if (stale) {
       const [priceRes, diffRes, hashRes] = await Promise.all([
@@ -147,13 +134,11 @@ app.get('/api/market-data', async (req, res) => {
       const networkHashrate = hashJson.hashrate || null;
 
       const upserts = [
-        { key: 'btc_price', value: btcPrice, fetched_at: new Date().toISOString() },
-        { key: 'difficulty_change_pct', value: difficultyChangePct, fetched_at: new Date().toISOString() },
+        { key: 'btc_price', value: btcPrice },
+        { key: 'difficulty_change_pct', value: difficultyChangePct },
       ];
-      if (networkHashrate) {
-        upserts.push({ key: 'network_hashrate', value: networkHashrate, fetched_at: new Date().toISOString() });
-      }
-      await supabase.from('market_data_cache').upsert(upserts);
+      if (networkHashrate) upserts.push({ key: 'network_hashrate', value: networkHashrate });
+      await store.setMarketCache(upserts);
       return res.json({
         btc_price: btcPrice,
         difficulty_change_pct: difficultyChangePct,
@@ -165,9 +150,9 @@ app.get('/api/market-data', async (req, res) => {
 
     res.json({
       btc_price: cache.btc_price.value,
-      difficulty_change_pct: cache.difficulty_change_pct?.value ?? null,
-      network_hashrate: cache.network_hashrate?.value ?? null,
-      fetched_at: cache.btc_price.fetched_at,
+      difficulty_change_pct: cache.difficulty_change_pct ? cache.difficulty_change_pct.value : null,
+      network_hashrate: cache.network_hashrate ? cache.network_hashrate.value : null,
+      fetched_at: cache.btc_price.fetchedAt,
       source: 'cache',
     });
   } catch (err) {
@@ -178,12 +163,11 @@ app.get('/api/market-data', async (req, res) => {
 
 // --- GET /api/progress ---
 app.get('/api/progress', requireAuth, async (req, res) => {
-  const { data, error } = await supabase
-    .from('progress')
-    .select('*')
-    .eq('user_id', req.userId);
-  if (error) return res.status(500).json({ error: error.message });
-  res.json({ progress: data });
+  try {
+    res.json({ progress: await store.getProgress(req.user.id) });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // --- POST /api/progress ---
@@ -192,108 +176,65 @@ app.post('/api/progress', requireAuth, async (req, res) => {
   if (!['stage1', 'stage2', 'stage3'].includes(stage_id)) {
     return res.status(400).json({ error: 'Invalid stage_id' });
   }
-  const { error } = await supabase.from('progress').upsert({
-    user_id: req.userId,
-    stage_id,
-    completed: !!completed,
-    completed_at: completed ? new Date().toISOString() : null,
-    quiz_score: quiz_score ?? null,
-  });
-  if (error) return res.status(500).json({ error: error.message });
-
-  const { data: allProgress } = await supabase
-    .from('progress')
-    .select('stage_id, completed')
-    .eq('user_id', req.userId);
-  const allDone = ['stage1', 'stage2', 'stage3'].every(
-    s => allProgress?.find(p => p.stage_id === s)?.completed
-  );
-  if (allDone) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('display_name')
-      .eq('id', req.userId)
-      .single();
-    await supabase.from('leaderboard_cache').upsert({
-      user_id: req.userId,
-      display_name: profile?.display_name || 'Miner',
-      metric: Date.now(),
-      updated_at: new Date().toISOString(),
-    });
-    log('info', 'leaderboard updated', { userId: req.userId });
+  try {
+    await store.upsertProgress(req.user.id, stage_id, !!completed, quiz_score == null ? null : quiz_score);
+    if (await store.allStagesComplete(req.user.id)) {
+      await store.upsertLeaderboard(req.user.id, req.user.displayName || 'Miner');
+      log('info', 'leaderboard updated', { userId: req.user.id });
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
-
-  res.json({ ok: true });
 });
 
 // --- GET /api/farm-config ---
 app.get('/api/farm-config', requireAuth, async (req, res) => {
-  const { data, error } = await supabase
-    .from('farm_config')
-    .select('*')
-    .eq('user_id', req.userId)
-    .single();
-  if (error && error.code !== 'PGRST116') return res.status(500).json({ error: error.message });
-  res.json({ rig_ids: data?.rig_ids || [] });
+  try {
+    res.json({ rig_ids: await store.getFarmConfig(req.user.id) });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // --- POST /api/farm-config ---
 app.post('/api/farm-config', requireAuth, async (req, res) => {
   const { rig_ids } = req.body;
   if (!Array.isArray(rig_ids)) return res.status(400).json({ error: 'rig_ids must be an array' });
-  const { error } = await supabase.from('farm_config').upsert({
-    user_id: req.userId,
-    rig_ids,
-    updated_at: new Date().toISOString(),
-  });
-  if (error) return res.status(500).json({ error: error.message });
-  res.json({ ok: true });
+  try {
+    await store.setFarmConfig(req.user.id, rig_ids);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // --- GET /api/leaderboard ---
 app.get('/api/leaderboard', async (req, res) => {
-  const limit = Math.min(parseInt(req.query.limit) || 20, 100);
-  const { data, error } = await supabase
-    .from('leaderboard_cache')
-    .select('display_name, metric')
-    .order('metric', { ascending: true })
-    .limit(limit);
-  if (error) return res.status(500).json({ error: error.message });
-  res.json({ leaderboard: data });
+  try {
+    res.json({ leaderboard: await store.getLeaderboard(req.query.limit) });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // --- GET /api/certificate ---
 app.get('/api/certificate', requireAuth, async (req, res) => {
   try {
-    const { data: progress, error } = await supabase
-      .from('progress')
-      .select('stage_id, completed, completed_at')
-      .eq('user_id', req.userId);
-    if (error) throw error;
-    const completedStages = (progress || []).filter(p => p.completed).map(p => p.stage_id);
-    const allDone = ['stage1', 'stage2', 'stage3'].every(s => completedStages.includes(s));
+    const progress = await store.getProgress(req.user.id);
+    const completedStages = progress.filter((p) => p.completed).map((p) => p.stage_id);
+    const allDone = ['stage1', 'stage2', 'stage3'].every((s) => completedStages.includes(s));
     if (!allDone) {
       return res.json({ complete: false, message: 'Complete all 3 stages to earn your certificate.', completedStages });
     }
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('display_name')
-      .eq('id', req.userId)
-      .single();
-    const certificateId = `QCM-${req.userId.slice(0, 8).toUpperCase()}`;
-    await supabase.from('certificates').upsert({
-      id: certificateId,
-      user_id: req.userId,
-      display_name: profile?.display_name || 'Miner',
-      issued_at: new Date().toISOString(),
-    });
+    const id = await store.issueCertificate(req.user.id, req.user.displayName || 'Miner');
     res.json({
       complete: true,
       certificate: {
-        id: certificateId,
-        display_name: profile?.display_name || 'Miner',
+        id,
+        display_name: req.user.displayName || 'Miner',
         issued_at: new Date().toISOString(),
-        url: `/certificate/${certificateId}`,
+        url: '/certificate/' + id,
       },
     });
   } catch (err) {
