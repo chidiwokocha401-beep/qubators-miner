@@ -142,12 +142,23 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:24px}
     <div class="cta">
       <button class="btn btn-gold" onclick="go('learn')">Start Learning →</button>
       <button class="btn btn-ghost" onclick="go('quiz')">Take the Quiz</button>
+      <a class="btn btn-gold" style="background:linear-gradient(135deg,#2fd08c,#1ea76c)" href="https://github.com/chidiwokocha401-beep/qubators-miner/releases/download/v1.0/qubators-miner.apk">📲 Download App</a>
     </div>
   </div>
 
   <div class="progress-wrap">
     <div style="display:flex;justify-content:space-between;font-size:13px"><span>📚 Lessons: <b id="lessonCount">0/4</b></span><span>📝 Quiz: <b id="quizCount">Not taken</b></span><span>🎓 Certificate: <b id="certState">Locked 🔒</b></span></div>
     <div class="bar"><i id="totalBar"></i></div>
+  </div>
+
+  <div class="card" style="text-align:center;border-color:#4aa8ff">
+    <h2>📲 Get the Qubators Miner Mobile App</h2>
+    <p>Install it on your Android phone — login, lessons, quiz &amp; certificates, all in one icon.</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px">
+      <a class="btn btn-gold" style="background:linear-gradient(135deg,#2fd08c,#1ea76c)" href="https://github.com/chidiwokocha401-beep/qubators-miner/releases/download/v1.0/qubators-miner.apk">⬇️ Download APK (Android)</a>
+      <button class="btn btn-ghost" onclick="installApp()">📲 Install from Browser</button>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-top:8px">After downloading, open the file and allow "install from unknown sources" if asked. iPhone: use Share → Add to Home Screen.</p>
   </div>
 
   <!-- LEARN -->
