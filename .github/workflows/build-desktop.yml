@@ -1,0 +1,55 @@
+name: Build Desktop Apps
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'desktop/**'
+      - '.github/workflows/build-desktop.yml'
+      - 'qubators-miner.html'
+      - 'manifest.webmanifest'
+      - 'sw.js'
+      - 'icons/**'
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Copy web assets
+        shell: bash
+        run: node copy-assets.js
+        working-directory: desktop
+
+      - name: Install dependencies
+        shell: bash
+        run: npm install --no-audit --no-fund
+        working-directory: desktop
+
+      - name: Build Windows portable EXE
+        if: matrix.os == 'windows-latest'
+        shell: bash
+        run: npx electron-builder --win portable --publish never
+        working-directory: desktop
+
+      - name: Build macOS DMG
+        if: matrix.os == 'macos-latest'
+        shell: bash
+        run: npx electron-builder --mac dmg --publish never
+        working-directory: desktop
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ matrix.os }}
+          path: |
+            desktop/dist/*.exe
+            desktop/dist/*.dmg
