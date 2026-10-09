@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Qubators Miner — Product Demo</title>
+<meta name="theme-color" content="#0b0f14">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;background:#0b0f14;color:#eef2f7;min-height:100vh;line-height:1.6}
+a{color:#f5a623}
+.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:rgba(11,15,20,.95);border-bottom:1px solid #28303d}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px}
+.wrap{max-width:1020px;margin:0 auto;padding:24px 18px 80px}
+.hero{text-align:center;padding:40px 16px}
+.hero h1{font-size:clamp(26px,5vw,44px);font-weight:900}
+.hero h1 em{color:#f5a623;font-style:normal}
+.hero p{color:#9aa6b5;max-width:640px;margin:10px auto 0}
+.demo-stage{display:grid;grid-template-columns:minmax(300px,340px) 1fr;gap:32px;align-items:center;margin-top:24px}
+@media(max-width:820px){.demo-stage{grid-template-columns:1fr}}
+/* Phone mockup */
+.phone{width:300px;margin:0 auto;background:#000;border-radius:44px;padding:12px;box-shadow:0 24px 70px rgba(0,0,0,.6),0 0 0 2px #2a2f38}
+.screen{background:#141a24;border-radius:34px;overflow:hidden;height:600px;position:relative;display:flex;flex-direction:column}
+.notch{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:110px;height:26px;background:#000;border-radius:14px;z-index:5}
+.mini{flex:1;padding:44px 14px 14px;display:none;flex-direction:column;animation:fade .4s ease}
+.mini.active{display:flex}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.mini h4{font-size:14px;margin-bottom:8px}
+.mini .sub{font-size:11px;color:#9aa6b5;margin-bottom:10px}
+.mcard{background:#1c232e;border:1px solid #28303d;border-radius:12px;padding:12px;margin-bottom:8px;font-size:12px}
+.mbtn{background:#f5a623;color:#1a1206;border:none;border-radius:8px;padding:10px;font-weight:800;font-size:12px;text-align:center;margin-top:auto}
+.mopt{background:#0b0f14;border:1px solid #28303d;border-radius:8px;padding:9px;margin-bottom:7px;font-size:12px;transition:all .4s}
+.mopt.hit{border-color:#2fd08c;background:rgba(47,208,140,.15)}
+.mbar{height:8px;background:#0b0f14;border-radius:5px;overflow:hidden;margin:6px 0}
+.mbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#f5a623,#2fd08c);transition:width 1s}
+.mcert{background:#fff;color:#222;border-radius:8px;padding:18px 12px;text-align:center;border:5px double #c9a227;margin-top:6px}
+.mcert b{font-family:Georgia,serif;font-size:19px;display:block;border-bottom:2px solid #c9a227;margin:4px 0}
+.mcert span{display:inline-block;background:#111;color:#ffcf6b;font-size:11px;font-weight:800;padding:4px 14px;border-radius:12px;margin-top:8px}
+.mrig{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.mrig div{width:26px;height:26px;border-radius:6px;background:#f5a623;animation:pop .5s ease}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+.fan{width:44px;height:44px;border-radius:50%;margin:0 auto 8px;background:conic-gradient(#f5a623 0deg,#333 60deg,#f5a623 120deg,#333 180deg,#f5a623 240deg,#333 300deg,#f5a623 360deg);animation:spin 2s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* Captions */
+.caption-card{background:#151b23;border:1px solid #28303d;border-radius:18px;padding:28px}
+.caption-card h2{font-size:24px;margin-bottom:6px}
+.caption-card h2 span{color:#f5a623}
+.caption-card p{color:#cfd6e0;font-size:15px;min-height:72px}
+.dots{display:flex;gap:8px;margin:16px 0}
+.dots button{width:34px;height:8px;border-radius:5px;border:none;background:#28303d;cursor:pointer}
+.dots button.on{background:#f5a623}
+.tour-btns{display:flex;gap:10px;flex-wrap:wrap}
+.btn{display:inline-block;padding:12px 24px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;border:none;text-decoration:none}
+.btn-gold{background:#f5a623;color:#1a1206}
+.btn-ghost{background:transparent;color:#fff;border:1px solid #444}
+/* Steps + features */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:34px}
+.card{background:#151b23;border:1px solid #28303d;border-radius:16px;padding:22px}
+.card .ic{font-size:34px}
+.card h3{font-size:16px;margin:8px 0 4px}
+.card p{font-size:13.5px;color:#9aa6b5}
+.stats{display:flex;gap:26px;justify-content:center;flex-wrap:wrap;margin-top:26px}
+.stats div{text-align:center}
+.stats b{font-size:30px;color:#f5a623;display:block}
+.stats small{color:#9aa6b5;font-size:12px}
+.platforms{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+footer{text-align:center;color:#9aa6b5;font-size:12px;padding:26px}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="logo">⛏️ Qubators Miner</div>
+  <div style="display:flex;gap:8px">
+    <a class="btn btn-ghost" style="padding:8px 16px" href="qubators-miner.html">Open App</a>
+    <a class="btn btn-gold" style="padding:8px 16px" href="https://github.com/chidiwokocha401-beep/qubators-miner/releases/download/v1.1/qubators-miner.apk">⬇️ Download</a>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="hero">
+    <h1>See Qubators Miner in <em>60 seconds</em></h1>
+    <p>An auto-playing illustrated tour — watch a learner go from login to certificate. Use the dots or arrows to step through manually.</p>
+  </div>
+
+  <div class="demo-stage">
+    <div class="phone"><div class="screen"><div class="notch"></div>
+
+      <div class="mini" id="m0">
+        <h4>🔐 1. Login</h4><div class="sub">Sign up in seconds</div>
+        <div class="mcard">👤 Adaeze Okafor<br><small style="color:#9aa6b5">♀️ Female • adaeze@example.com</small></div>
+        <div class="mcard">🔑 ••••••••</div>
+        <div class="mbtn">Create Account →</div>
+      </div>
+
+      <div class="mini" id="m1">
+        <h4>📖 2. Learn</h4><div class="sub">4 interactive lessons</div>
+        <div class="mcard">✅ Cloud Mining Explained</div>
+        <div class="mcard">✅ How Contracts Work</div>
+        <div class="mcard">🔶 Costs, Halving &amp; Difficulty</div>
+        <div class="mcard" style="opacity:.6">🔒 Risks &amp; Scam Spotting</div>
+        <div class="mbar"><i id="learnBar"></i></div>
+      </div>
+
+      <div class="mini" id="m2">
+        <h4>⚙️ 3. Simulate</h4><div class="sub">Drag sliders, see profit live</div>
+        <div class="fan"></div>
+        <div class="mcard">Hash rate: <b id="simHash">50 TH/s</b><br>Daily profit: <b id="simProfit" style="color:#2fd08c">$0.00</b></div>
+        <div class="mrig" id="simRigs"></div>
+        <div class="mbtn">Try it live →</div>
+      </div>
+
+      <div class="mini" id="m3">
+        <h4>📝 4. Quiz</h4><div class="sub">8 questions • pass mark 50%</div>
+        <div class="mcard" style="font-weight:700">What do you rent in cloud mining?</div>
+        <div class="mopt" id="qo0">A. Machines for your home</div>
+        <div class="mopt" id="qo1">B. Hash power in a data centre</div>
+        <div class="mopt" id="qo2">C. Bitcoin wallets</div>
+        <div class="mbtn" id="quizBtn">Score: —</div>
+      </div>
+
+      <div class="mini" id="m4">
+        <h4>🎓 5. Certificate</h4><div class="sub">Issued on passing</div>
+        <div class="mcert">
+          <small style="letter-spacing:2px;color:#8a6d1b;font-weight:700">QUBATORS MINER</small>
+          <div style="font-size:13px">Certificate of Completion</div>
+          <b>Ms. Adaeze Okafor</b>
+          <div style="font-size:11px;color:#555">Cloud Mining Fundamentals</div>
+          <span>Score: 87% • Female</span>
+        </div>
+        <div class="mbtn">🖨️ Print / Save PDF</div>
+      </div>
+
+    </div></div>
+
+    <div class="caption-card">
+      <h2 id="capTitle"></h2>
+      <p id="capText"></p>
+      <div class="dots" id="dots"></div>
+      <div class="tour-btns">
+        <button class="btn btn-ghost" onclick="step(-1)">← Prev</button>
+        <button class="btn btn-gold" onclick="step(1)">Next →</button>
+        <button class="btn btn-ghost" id="playBtn" onclick="togglePlay()">⏸ Pause</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:26px;text-align:center">
+    <h3>🎬 Watch the real app in action (1 min)</h3>
+    <video controls playsinline preload="metadata" style="width:100%;max-width:340px;border-radius:16px;border:1px solid #28303d;margin-top:10px" src="https://github.com/chidiwokocha401-beep/qubators-miner/releases/download/v1.1/qubators-demo.mp4"></video>
+    <p style="font-size:12px;margin-top:8px">Recorded from the live app: signup → lessons → simulator → quiz → certificate → partner.</p>
+    <div class="platforms"><a class="btn btn-gold" href="https://github.com/chidiwokocha401-beep/qubators-miner/releases/download/v1.1/qubators-demo.mp4">⬇️ Download Video</a></div>
+  </div>
+
+  <div class="stats">
+    <div><b>4</b><small>Lessons</small></div>
+    <div><b>8</b><small>Quiz questions</small></div>
+    <div><b>4</b><small>Platforms</small></div>
+    <div><b>100%</b><small>Free</small></div>
+  </div>
+
+  <div class="grid">
+    <div class="card"><div class="ic">🎓</div><h3>Learn by doing</h3><p>Interactive lessons with live widgets — not walls of text.</p></div>
+    <div class="card"><div class="ic">⚙️</div><h3>Simulate safely</h3><p>Experiment with hash rate, fees and BTC price. Zero real money.</p></div>
+    <div class="card"><div class="ic">🛡️</div><h3>Spot scams</h3><p>Learn the red flags of fake cloud-mining schemes.</p></div>
+    <div class="card"><div class="ic">🤝</div><h3>Support the mission</h3><p>Partner via OPAY <b>8130522995</b> — keep it free for everyone.</p></div>
+  </div>
+
+  <div class="card" style="text-align:center;margin-top:16px;border-color:#2fd08c">
+    <h3>📲 Get the app — Android, Windows, macOS or browser</h3>
+    <div class="platforms">
+      <a class="btn btn-gold" style="background:linear-gradient(135deg,#2fd08c,#1ea76c)" href="https://github.com/chidiwokocha401-beep/qubators-miner/releases/download/v1.1/qubators-miner.apk">🤖 Android</a>
+      <a class="btn btn-gold" style="background:linear-gradient(135deg,#4aa8ff,#2b6fd6)" href="https://github.com/chidiwokocha401-beep/qubators-miner/releases/download/v1.1/qubators-miner-windows.exe">🪟 Windows</a>
+      <a class="btn btn-gold" style="background:linear-gradient(135deg,#b48cff,#7a5cff);color:#fff" href="https://github.com/chidiwokocha401-beep/qubators-miner/releases/download/v1.1/qubators-miner-macos.dmg">🍎 macOS</a>
+      <a class="btn btn-ghost" href="qubators-miner.html">🌐 Open Web App</a>
+    </div>
+  </div>
+</div>
+
+<footer>Qubators Miner — Educational simulation only. © 2026 Qubators.</footer>
+
+<script>
+const STEPS=[
+ {t:'🔐 <span>Login in seconds</span>',x:'Adaeze creates her free account — name, gender, email, password. Her details will auto-fill her certificate later.'},
+ {t:'📖 <span>Learn interactively</span>',x:'Four bite-size lessons: what cloud mining is, how contracts work, costs & halving, and how to spot scams.'},
+ {t:'⚙️ <span>Simulate mining</span>',x:'She drags the sliders — hash rate, fees, BTC price — and watches daily profit flip between loss and gain. No real money involved.'},
+ {t:'📝 <span>Prove it in the quiz</span>',x:'Eight questions, 50% to pass. Correct answers light up green; her score is saved for the certificate.'},
+ {t:'🎓 <span>Earn the certificate</span>',x:'Ms. Adaeze Okafor — Score: 87% • Female. Printable, with certificate ID and grade. Shareable proof of skill.'}
+];
+let cur=0,playing=true,timer=null;
+const dotsBox=document.getElementById('dots');
+STEPS.forEach((_,i)=>{const b=document.createElement('button');b.onclick=()=>show(i,true);dotsBox.appendChild(b)});
+
+function show(i,manual){
+ cur=(i+STEPS.length)%STEPS.length;
+ document.querySelectorAll('.mini').forEach((m,k)=>m.classList.toggle('active',k===cur));
+ document.getElementById('capTitle').innerHTML=STEPS[cur].t;
+ document.getElementById('capText').textContent=STEPS[cur].x;
+ [...dotsBox.children].forEach((d,k)=>d.classList.toggle('on',k===cur));
+ if(cur===1)document.getElementById('learnBar').style.width='55%';
+ if(cur===2)runSim();
+ if(cur===3)runQuiz();
+ if(manual)restart();
+}
+function step(d){show(cur+d,true)}
+function togglePlay(){playing=!playing;document.getElementById('playBtn').textContent=playing?'⏸ Pause':'▶ Play';restart()}
+function restart(){clearInterval(timer);if(playing)timer=setInterval(()=>show(cur+1),5000)}
+
+let simN=0;
+function runSim(){
+ const rigs=document.getElementById('simRigs');rigs.innerHTML='';
+ const n=4+Math.floor(Math.random()*8);
+ for(let i=0;i<n;i++){const d=document.createElement('div');d.style.animationDelay=(i*0.06)+'s';rigs.appendChild(d)}
+ simN=0;const h=40+Math.floor(Math.random()*60);
+ document.getElementById('simHash').textContent=h+' TH/s';
+ const t=setInterval(()=>{simN+=0.37;if(simN>=2.14){simN=2.14;clearInterval(t)}
+  document.getElementById('simProfit').textContent='$'+simN.toFixed(2)},90);
+}
+function runQuiz(){
+ ['qo0','qo1','qo2'].forEach(id=>document.getElementById(id).classList.remove('hit'));
+ document.getElementById('quizBtn').textContent='Score: —';
+ setTimeout(()=>{document.getElementById('qo1').classList.add('hit');
+  document.getElementById('quizBtn').textContent='Score: 87% 🎉'},1400);
+}
+show(0);restart();
+</script>
+</body>
+</html>
