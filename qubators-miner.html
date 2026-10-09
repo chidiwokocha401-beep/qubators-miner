@@ -98,6 +98,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:24px}
     <button data-page="simulate">⚙️ Simulate</button>
     <button data-page="quiz">📝 Quiz</button>
     <button data-page="cert">🎓 Certificate</button>
+    <button data-page="demo">🎬 Demo</button>
   </nav>
   <div style="display:flex;gap:8px;align-items:center">
     <span id="userChip" style="display:none;font-size:13px;color:var(--green);font-weight:700"></span>
@@ -254,6 +255,29 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:24px}
       <div><span class="c-score" id="cScore">Score: —</span></div>
       <div class="c-meta" id="cMeta">Grade: — • Date: — • ID: QCM-________</div>
       <div class="c-sign"><span>_________________<br><b>Chidiwokocha</b><br>Head, Qubators Team</span><span style="text-align:right">⛏️ Qubators Miner<br>Verify: qubators.com/verify</span></div>
+    </div>
+  </section>
+
+  <section id="page-demo" class="page">
+    <div class="card" style="text-align:center">
+      <h2>🎬 Product Demo — the app in 1 minute</h2>
+      <p>Recorded from this very app: signup → lessons → simulator → quiz → certificate → partner.</p>
+      <video controls playsinline preload="metadata" style="width:100%;max-width:420px;border-radius:14px;border:1px solid var(--border);margin-top:12px" src="https://github.com/chidiwokocha401-beep/qubators-miner/releases/download/v1.1/qubators-demo.mp4"></video>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px">
+        <a class="btn btn-gold" href="https://github.com/chidiwokocha401-beep/qubators-miner/releases/download/v1.1/qubators-demo.mp4">⬇️ Download Video</a>
+        <a class="btn btn-ghost" href="demo.html">🗺️ Full illustrated tour</a>
+      </div>
+    </div>
+    <div class="card">
+      <h2>🗺️ Take the guided tour</h2>
+      <p>Jump straight into each part of the app:</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+        <button class="btn btn-gold" onclick="go('learn')">📖 1. Learn</button>
+        <button class="btn btn-gold" onclick="go('simulate')">⚙️ 2. Simulate</button>
+        <button class="btn btn-gold" onclick="go('quiz')">📝 3. Quiz</button>
+        <button class="btn btn-gold" onclick="go('cert')">🎓 4. Certificate</button>
+      </div>
+      <p style="margin-top:10px;font-size:13px;color:var(--muted)">Tip: the Quiz and Certificate need you to be logged in — it takes 10 seconds on the login screen.</p>
     </div>
   </section>
 
