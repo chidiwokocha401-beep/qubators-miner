@@ -23,6 +23,7 @@
       <a href="#faq">FAQ</a>
     </nav>
     <div class="nav-right">
+      <button class="btn btn-primary" style="margin-right:8px" onclick="document.getElementById('partnerModal').style.display='flex'">🤝 Partner</button>
       <a href="/login.html" class="btn btn-primary">Sign In</a>
     </div>
   </header>
@@ -297,6 +298,22 @@
   </footer>
 
   <script src="/js/app.js"></script>
+  <!-- Partner with Developer Modal -->
+  <div id="partnerModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:18px" onclick="if(event.target.id==='partnerModal')this.style.display='none'">
+    <div style="background:#fff;color:#333;border-radius:18px;max-width:420px;width:100%;padding:28px;text-align:center">
+      <div style="font-size:44px">🤝</div>
+      <h2 style="color:#1a1a2e">Partner with the Developer</h2>
+      <p style="color:#666;font-size:14px">Support Qubators Miner. Send partnership to:</p>
+      <div style="background:#f8f9fa;border:2px dashed #f7931a;border-radius:12px;padding:18px;margin:16px 0">
+        <small style="color:#999">OPAY ACCOUNT NUMBER</small>
+        <div style="font-size:30px;font-weight:800;letter-spacing:2px;color:#1a1a2e">8130522995</div>
+        <small style="color:#999">Bank: OPAY • Qubators Developer</small>
+      </div>
+      <button class="btn btn-primary" onclick="navigator.clipboard.writeText('8130522995').then(()=>document.getElementById('copyMsg').textContent='✅ Copied!').catch(()=>{})">📋 Copy Number</button>
+      <p id="copyMsg" style="font-size:13px;color:green"></p>
+      <button class="btn btn-outline" style="color:#333;border-color:#ddd;margin-top:8px" onclick="document.getElementById('partnerModal').style.display='none'">Close</button>
+    </div>
+  </div>
   <script>
     renderNav('home');
     requireAuth();

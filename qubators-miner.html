@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qubators Miner — Learn Cloud Mining & Earn Your Certificate</title>
+<style>
+:root{--bg:#0b0f14;--card:#151b23;--card2:#1c232e;--border:#28303d;--text:#eef2f7;--muted:#9aa6b5;--gold:#f5a623;--gold2:#ffcf6b;--green:#2fd08c;--red:#e05252;--blue:#4aa8ff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+a{color:var(--gold)}
+.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:rgba(11,15,20,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px}.logo span.ic{font-size:26px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tabs button{background:var(--card);color:var(--muted);border:1px solid var(--border);padding:8px 16px;border-radius:20px;cursor:pointer;font-size:13px;font-weight:600}
+.tabs button.active{background:var(--gold);color:#1a1206;border-color:var(--gold)}
+.partner-btn{background:linear-gradient(135deg,#2fd08c,#1ea76c);color:#04271a;border:none;padding:10px 18px;border-radius:10px;font-weight:800;cursor:pointer;font-size:13px}
+.wrap{max-width:960px;margin:0 auto;padding:24px 18px 90px}
+.hero{text-align:center;padding:36px 16px;background:linear-gradient(135deg,#141a25,#1d1430);border:1px solid var(--border);border-radius:20px;margin-bottom:20px}
+.hero h1{font-size:clamp(26px,5vw,44px);font-weight:900}.hero h1 em{color:var(--gold);font-style:normal}
+.hero p{color:var(--muted);max-width:640px;margin:10px auto 18px}
+.hero .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn{display:inline-block;padding:13px 26px;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;border:none;text-decoration:none}
+.btn-gold{background:var(--gold);color:#1a1206}.btn-ghost{background:transparent;color:#fff;border:1px solid #444}
+.progress-wrap{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:20px}
+.bar{height:10px;background:#0b0f14;border-radius:6px;overflow:hidden;margin-top:8px;border:1px solid var(--border)}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--green));transition:width .4s}
+.page{display:none}.page.active{display:block;animation:fade .3s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:16px}
+.card h2{font-size:19px;margin-bottom:8px}.card h3{font-size:16px;margin:14px 0 6px;color:var(--gold2)}
+.card p,.card li{font-size:14.5px;color:#cfd6e0}.card ul{padding-left:20px}
+.lesson{border:1px solid var(--border);border-radius:12px;margin-bottom:12px;overflow:hidden;background:var(--card2)}
+.lesson-head{width:100%;text-align:left;background:none;border:none;color:var(--text);padding:16px;font-size:15px;font-weight:700;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.lesson-head .tick{flex-shrink:0;width:26px;height:26px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px}
+.lesson.done .tick{background:var(--green);border-color:var(--green);color:#04271a}
+.lesson-body{display:none;padding:0 16px 18px}.lesson.open .lesson-body{display:block}
+.lesson-body .complete-btn{margin-top:12px;background:var(--green);color:#04271a;border:none;padding:9px 18px;border-radius:8px;font-weight:700;cursor:pointer}
+.sim-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:700px){.sim-grid{grid-template-columns:1fr}}
+.field{margin-bottom:14px}.field label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:6px;font-weight:600}
+.field input[type=range]{width:100%;accent-color:var(--gold)}
+.field input[type=text],.field select{width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);background:#0b0f14;color:var(--text);font-size:15px}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:#0b0f14;border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center}
+.stat b{display:block;font-size:20px}.stat small{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+.stat.good b{color:var(--green)}.stat.bad b{color:var(--red)}
+.mine-visual{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;min-height:28px}
+.mine-visual div{width:22px;height:22px;border-radius:5px;background:var(--gold);animation:pop .5s ease}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+/* Quiz */
+#quizBox .q{font-size:17px;font-weight:700;margin-bottom:14px}
+.opt{display:block;width:100%;text-align:left;background:#0b0f14;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:13px;margin-bottom:10px;cursor:pointer;font-size:14.5px}
+.opt:hover{border-color:var(--gold)}.opt.correct{border-color:var(--green);background:rgba(47,208,140,.12)}.opt.wrong{border-color:var(--red);background:rgba(224,82,82,.12)}
+.opt:disabled{opacity:.85;cursor:default}
+/* Certificate preview */
+.cert-preview{background:#fff;color:#222;border-radius:10px;padding:44px 36px;text-align:center;position:relative;border:8px double #c9a227;margin-top:16px}
+.cert-preview .c-title{font-size:13px;letter-spacing:3px;color:#8a6d1b;font-weight:700}
+.cert-preview h2{font-size:30px;margin:8px 0;color:#111;font-family:Georgia,serif}
+.cert-preview .c-name{font-size:34px;font-weight:900;font-family:Georgia,serif;color:#111;border-bottom:2px solid #c9a227;display:inline-block;padding:0 24px;margin:8px 0}
+.cert-preview .c-score{display:inline-block;margin-top:12px;background:#111;color:#ffcf6b;padding:8px 22px;border-radius:20px;font-weight:800;font-size:16px}
+.cert-preview .c-meta{font-size:12px;color:#666;margin-top:14px}
+.cert-preview .c-sign{display:flex;justify-content:space-between;margin-top:28px;font-size:12px;color:#444}
+.gender-row{display:flex;gap:10px}.gender-row label{flex:1;border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;cursor:pointer;font-weight:700}
+.gender-row input{display:none}.gender-row label.sel{border-color:var(--gold);background:rgba(245,166,35,.12)}
+/* Modal */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;padding:18px}
+.modal-bg.open{display:flex}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:18px;max-width:420px;width:100%;padding:28px;text-align:center}
+.modal .acct{background:#0b0f14;border:1px dashed var(--gold);border-radius:12px;padding:18px;margin:16px 0}
+.modal .acct b{font-size:28px;letter-spacing:2px;color:var(--gold2);display:block}
+.copy-btn{background:var(--gold);border:none;padding:10px 22px;border-radius:8px;font-weight:800;cursor:pointer;margin-top:10px}
+.close-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:8px 18px;border-radius:8px;cursor:pointer;margin-top:10px}
+/* Floating partner */
+.float-partner{position:fixed;bottom:18px;right:18px;z-index:60;background:linear-gradient(135deg,#2fd08c,#1ea76c);color:#04271a;border:none;padding:14px 20px;border-radius:30px;font-weight:800;cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,.4);font-size:14px}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:24px}
+.field input[type=password]{width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);background:#0b0f14;color:var(--text);font-size:15px}
+#authScreen .logo{justify-content:center}
+@media print{body *{visibility:hidden}.cert-preview, .cert-preview *{visibility:visible}.cert-preview{position:absolute;top:0;left:0;right:0;margin:0}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="logo"><span class="ic">⛏️</span> Qubators Miner</div>
+  <nav class="tabs">
+    <button class="active" data-page="learn">📖 Learn</button>
+    <button data-page="simulate">⚙️ Simulate</button>
+    <button data-page="quiz">📝 Quiz</button>
+    <button data-page="cert">🎓 Certificate</button>
+  </nav>
+  <div style="display:flex;gap:8px;align-items:center">
+    <span id="userChip" style="display:none;font-size:13px;color:var(--green);font-weight:700"></span>
+    <button id="logoutBtn" style="display:none;background:none;border:1px solid var(--border);color:var(--muted);padding:8px 14px;border-radius:10px;cursor:pointer;font-size:12px" onclick="logout()">Logout</button>
+    <button class="partner-btn" onclick="openPartner()">🤝 Partner</button>
+  </div>
+</header>
+
+<div id="authScreen" style="display:none;position:fixed;inset:0;z-index:200;background:linear-gradient(135deg,#0b0f14,#1d1430);align-items:center;justify-content:center;padding:18px;overflow-y:auto">
+  <div class="card" style="max-width:430px;width:100%;margin:0">
+    <div class="logo"><span class="ic">⛏️</span> Qubators Miner</div>
+    <p style="text-align:center;color:var(--muted);font-size:13px;margin:6px 0 14px">Login to learn, take the quiz &amp; earn your certificate</p>
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <button id="tabUp" class="btn btn-gold" style="flex:1" onclick="authMode('up')">Sign Up</button>
+      <button id="tabIn" class="btn btn-ghost" style="flex:1" onclick="authMode('in')">Sign In</button>
+    </div>
+    <div id="upForm">
+      <div class="field"><label>Full Name</label><input type="text" id="upName" placeholder="e.g. Adaeze Okafor"></div>
+      <div class="field"><label>Gender</label><div class="gender-row">
+        <label id="upM"><input type="radio" name="upgender" value="Male" onchange="upGender='Male';updUpGender()"> ♂️ Male</label>
+        <label id="upF"><input type="radio" name="upgender" value="Female" onchange="upGender='Female';updUpGender()"> ♀️ Female</label>
+      </div></div>
+      <div class="field"><label>Email</label><input type="text" id="upEmail" placeholder="you@example.com"></div>
+      <div class="field"><label>Password (min 4 chars)</label><input type="password" id="upPass" placeholder="Choose a password"></div>
+      <button class="btn btn-gold" style="width:100%" onclick="doSignup()">Create Account →</button>
+    </div>
+    <div id="inForm" style="display:none">
+      <div class="field"><label>Email</label><input type="text" id="inEmail" placeholder="you@example.com"></div>
+      <div class="field"><label>Password</label><input type="password" id="inPass" placeholder="Your password"></div>
+      <button class="btn btn-gold" style="width:100%" onclick="doSignin()">Sign In →</button>
+    </div>
+    <p id="authMsg" style="font-size:13px;margin-top:10px;text-align:center"></p>
+    <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:6px">Demo login — account is saved only in this browser.</p>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="hero">
+    <h1>Master <em>Cloud Mining</em> — Free Interactive Course</h1>
+    <p>Learn what cloud mining really is, how profits (and scams) work, simulate a mining contract, pass the quiz and earn a personalized <b>Certificate of Completion</b> with your name, gender title &amp; score.</p>
+    <div class="cta">
+      <button class="btn btn-gold" onclick="go('learn')">Start Learning →</button>
+      <button class="btn btn-ghost" onclick="go('quiz')">Take the Quiz</button>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <div style="display:flex;justify-content:space-between;font-size:13px"><span>📚 Lessons: <b id="lessonCount">0/4</b></span><span>📝 Quiz: <b id="quizCount">Not taken</b></span><span>🎓 Certificate: <b id="certState">Locked 🔒</b></span></div>
+    <div class="bar"><i id="totalBar"></i></div>
+  </div>
+
+  <!-- LEARN -->
+  <section id="page-learn" class="page active">
+    <div class="card">
+      <h2>📖 What is Cloud Mining?</h2>
+      <p>Tap each lesson to expand it. Click <b>"Mark as Complete"</b> when done — finish all 4 to unlock the quiz bonus.</p>
+    </div>
+    <div id="lessons"></div>
+  </section>
+
+  <!-- SIMULATE -->
+  <section id="page-simulate" class="page">
+    <div class="card">
+      <h2>⚙️ Interactive Cloud Mining Simulator</h2>
+      <p>Drag the sliders. This is <b>education only</b> — no real Bitcoin is mined here.</p>
+    </div>
+    <div class="card sim-grid">
+      <div>
+        <div class="field"><label>Contract price: $<span id="vBudget">500</span></label><input type="range" id="inBudget" min="50" max="5000" value="500" step="50"></div>
+        <div class="field"><label>Rented hash rate: <span id="vHash">50</span> TH/s</label><input type="range" id="inHash" min="10" max="500" value="50"></div>
+        <div class="field"><label>BTC price forecast: $<span id="vBtc">100000</span></label><input type="range" id="inBtc" min="20000" max="250000" value="100000" step="5000"></div>
+        <div class="field"><label>Maintenance fee: $<span id="vFee">0.05</span> / TH / day</label><input type="range" id="inFee" min="0" max="0.3" value="0.05" step="0.01"></div>
+        <div class="field"><label>Contract length: <span id="vMonths">12</span> months</label><input type="range" id="inMonths" min="1" max="24" value="12"></div>
+      </div>
+      <div>
+        <div class="stat-grid">
+          <div class="stat"><small>Daily Revenue</small><b id="sRev">$0</b></div>
+          <div class="stat"><small>Daily Fee</small><b id="sFee">$0</b></div>
+          <div class="stat" id="profitCard"><small>Daily Profit</small><b id="sProfit">$0</b></div>
+          <div class="stat"><small>Total Profit</small><b id="sTotal">$0</b></div>
+        </div>
+        <div class="mine-visual" id="mineVisual"></div>
+        <p id="simVerdict" style="margin-top:10px;font-weight:700"></p>
+      </div>
+    </div>
+    <div class="card">
+      <h3>⚠️ Red flags of fake cloud mining</h3>
+      <ul>
+        <li>Guaranteed daily profits with zero risk — real mining is never guaranteed.</li>
+        <li>No photos / videos of real hardware or facility.</li>
+        <li>Withdrawal locked until you "upgrade" or pay a fee.</li>
+        <li>Referral bonuses bigger than mining payouts (Ponzi pattern).</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="page-quiz" class="page">
+    <div class="card">
+      <h2>📝 Final Quiz — 8 Questions (pass mark: 50%)</h2>
+      <p>Answer all questions to get your score. Your score appears on your certificate.</p>
+    </div>
+    <div class="card" id="quizBox">
+      <div style="font-size:13px;color:var(--muted)" id="qProgress">Question 1 of 8</div>
+      <div class="bar" style="margin:8px 0 16px"><i id="qBar"></i></div>
+      <div class="q" id="qText"></div>
+      <div id="qOpts"></div>
+      <div id="qFeedback" style="font-size:14px;margin-top:8px"></div>
+      <button class="btn btn-gold" id="qNext" style="display:none;margin-top:12px" onclick="nextQ()">Next →</button>
+    </div>
+    <div class="card" id="quizResult" style="display:none;text-align:center"></div>
+  </section>
+
+  <!-- CERTIFICATE -->
+  <section id="page-cert" class="page">
+    <div class="card">
+      <h2>🎓 Generate Your Certificate of Completion</h2>
+      <p>Enter your name and select Male or Female — your title (Mr. / Ms.) and quiz score will be printed on the certificate.</p>
+      <div class="field" style="margin-top:14px"><label>Full Name</label><input type="text" id="fName" placeholder="e.g. Adaeze Okafor" oninput="renderCert()"></div>
+      <div class="field"><label>Gender</label>
+        <div class="gender-row">
+          <label id="gM"><input type="radio" name="gender" value="Male" onchange="setGender('Male')"> ♂️ Male</label>
+          <label id="gF"><input type="radio" name="gender" value="Female" onchange="setGender('Female')"> ♀️ Female</label>
+        </div>
+      </div>
+      <div class="field"><label>Score (%) — auto-filled from quiz, editable</label><input type="text" id="fScore" placeholder="e.g. 87" oninput="renderCert()"></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
+        <button class="btn btn-gold" onclick="issueCert()">✅ Issue Certificate</button>
+        <button class="btn btn-ghost" onclick="window.print()">🖨️ Print / Save PDF</button>
+      </div>
+      <p id="certMsg" style="margin-top:10px;font-size:13px"></p>
+    </div>
+    <div class="cert-preview" id="certPreview">
+      <div class="c-title">QUBATORS MINER • BLOCKCHAIN EDUCATION</div>
+      <h2>Certificate of Completion</h2>
+      <p style="font-size:14px;color:#555">This certifies that</p>
+      <div class="c-name" id="cName">Your Name</div>
+      <p style="font-size:14px;color:#555" id="cSub">has successfully completed training in <b>Cloud Mining Fundamentals</b>: how cloud mining works, contract economics, risks &amp; scam awareness, and profitability simulation.</p>
+      <div><span class="c-score" id="cScore">Score: —</span></div>
+      <div class="c-meta" id="cMeta">Grade: — • Date: — • ID: QCM-________</div>
+      <div class="c-sign"><span>_________________<br><b>Chidiwokocha</b><br>Head, Qubators Team</span><span style="text-align:right">⛏️ Qubators Miner<br>Verify: qubators.com/verify</span></div>
+    </div>
+  </section>
+
+  <div class="card" style="text-align:center;border-color:#2fd08c">
+    <h2>🤝 Want to Partner with the Developer?</h2>
+    <p>Support Qubators Miner — server costs, new lessons &amp; features. Tap below to see the partnership account.</p>
+    <button class="partner-btn" style="margin-top:10px;font-size:15px" onclick="openPartner()">🤝 Partner with Developer</button>
+  </div>
+</div>
+
+<button class="float-partner" onclick="openPartner()">🤝 Partner</button>
+
+<div class="modal-bg" id="partnerModal">
+  <div class="modal">
+    <div style="font-size:44px">🤝</div>
+    <h2>Partner with the Developer</h2>
+    <p style="color:var(--muted);font-size:14px">Send your partnership / support to:</p>
+    <div class="acct">
+      <small style="color:var(--muted)">OPAY ACCOUNT NUMBER</small>
+      <b>8130522995</b>
+      <small style="color:var(--muted)">Bank: OPAY • Name: Qubators Developer</small>
+    </div>
+    <button class="copy-btn" onclick="copyAcct()">📋 Copy Account Number</button>
+    <p id="copyMsg" style="font-size:13px;color:var(--green);margin-top:8px"></p>
+    <p style="font-size:12px;color:var(--muted);margin-top:10px">After sending, keep your receipt. Thank you for supporting free blockchain education! 🙏</p>
+    <button class="close-btn" onclick="closePartner()">Close</button>
+  </div>
+</div>
+
+<footer>Qubators Miner — Educational simulation only. No real Bitcoin is mined. © 2026 Qubators.</footer>
+
+<script>
+const LESSONS=[
+ {t:"1️⃣ Cloud Mining Explained",b:`<h3>What it is</h3><p>Instead of buying noisy, hot mining machines for your home, you <b>rent hash power</b> from a company that runs the hardware in a far-away data centre. You pay for a contract (e.g. 50 TH/s for 12 months) and receive a share of whatever that hash power earns, minus fees.</p><h3>Key terms</h3><ul><li><b>Hash rate (TH/s)</b> — how many guesses per second your rented power makes.</li><li><b>Contract</b> — amount of power + length of rental.</li><li><b>Maintenance fee</b> — daily charge per TH/s for electricity & upkeep.</li><li><b>Payout</b> — your share of block rewards, usually paid daily in BTC.</li></ul>`},
+ {t:"2️⃣ How a Cloud Mining Contract Works",b:`<ul><li><b>Step 1:</b> You pick a plan — e.g. $500 for 50 TH/s, 12 months.</li><li><b>Step 2:</b> Provider powers the machines 24/7.</li><li><b>Step 3:</b> Each day your share of mined BTC minus maintenance fee lands in your wallet.</li><li><b>Step 4:</b> If total payouts exceed what you paid → profit. If not → loss.</li></ul><h3>Simple formula</h3><p><b>Daily profit = Daily revenue − Daily maintenance fee.</b> Try it live in the <b>Simulate</b> tab!</p>`},
+ {t:"3️⃣ Costs, Halving & Difficulty",b:`<p>Three forces squeeze miners:</p><ul><li><b>Electricity/fees</b> — machines run 24/7; high fees can erase profit.</li><li><b>Bitcoin halving</b> — every ~4 years the block reward halves (6.25 → 3.125 in 2024). Revenue drops overnight unless price rises.</li><li><b>Difficulty</b> — when more miners join, the network makes puzzles harder so blocks still take ~10 minutes. Your fixed TH/s earns less.</li></ul>`},
+ {t:"4️⃣ Risks & How to Spot Scams",b:`<ul><li>🚩 <b>Guaranteed profit</b> promises — impossible in real mining.</li><li>🚩 No proof of hardware, anonymous team, no address.</li><li>🚩 Can't withdraw unless you "pay to unlock".</li><li>✅ Real providers show live stats, clear fees, realistic returns.</li></ul><p><b>Golden rule:</b> if returns sound too good to be true, it is not mining — it is a Ponzi scheme.</p>`}
+];
+let doneLessons=new Set(JSON.parse(localStorage.getItem('qm_lessons')||'[]'));
+let gender='';
+let quizScore=null;
+
+function renderLessons(){
+ const box=document.getElementById('lessons');box.innerHTML='';
+ LESSONS.forEach((L,i)=>{
+  const d=document.createElement('div');d.className='lesson'+(doneLessons.has(i)?' done':'');
+  d.innerHTML=`<button class="lesson-head" onclick="toggleLesson(${i})"><span>${L.t}</span><span class="tick">${doneLessons.has(i)?'✓':'+'}</span></button><div class="lesson-body">${L.b}<br><button class="complete-btn" onclick="completeLesson(${i})">${doneLessons.has(i)?'✓ Completed':'Mark as Complete ✓'}</button></div>`;
+  box.appendChild(d);
+ });
+ updateProgress();
+}
+function toggleLesson(i){document.querySelectorAll('.lesson')[i].classList.toggle('open')}
+function completeLesson(i){doneLessons.add(i);localStorage.setItem('qm_lessons',JSON.stringify([...doneLessons]));renderLessons();document.querySelectorAll('.lesson')[i].classList.add('open')}
+function updateProgress(){
+ document.getElementById('lessonCount').textContent=doneLessons.size+'/4';
+ document.getElementById('quizCount').textContent=quizScore===null?'Not taken':quizScore+'%';
+ const cert=localStorage.getItem('qm_cert');
+ document.getElementById('certState').textContent=cert?('Issued ✅'):(quizScore!==null?'Ready':'Locked 🔒');
+ document.getElementById('totalBar').style.width=((doneLessons.size/4*50)+(quizScore!==null?30:0)+(cert?20:0))+'%';
+}
+
+// Tabs
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>go(b.dataset.page));
+function go(p){
+ if((p==='quiz'||p==='cert')&&!requireAuth(p==='quiz'?'the Quiz':'your Certificate'))return;
+ document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
+ document.querySelectorAll('.page').forEach(s=>s.classList.remove('active'));
+ document.getElementById('page-'+p).classList.add('active');
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// Simulator
+const $=id=>document.getElementById(id);
+function sim(){
+ const budget=+$('inBudget').value,hash=+$('inHash').value,btc=+$('inBtc').value,fee=+$('inFee').value,months=+$('inMonths').value;
+ $('vBudget').textContent=budget;$('vHash').textContent=hash;$('vBtc').textContent=btc.toLocaleString();$('vFee').textContent=fee.toFixed(2);$('vMonths').textContent=months;
+ const NET=740e6,share=hash/NET,dailyBTC=share*450*3.125,rev=dailyBTC*btc,dFee=hash*fee,profit=rev-dFee,total=profit*30*months;
+ $('sRev').textContent='$'+rev.toFixed(2);$('sFee').textContent='$'+dFee.toFixed(2);
+ $('sProfit').textContent='$'+profit.toFixed(2);$('sTotal').textContent=(total<0?'-$':'$')+Math.abs(total).toFixed(0);
+ $('profitCard').className='stat '+(profit>=0?'good':'bad');
+ const v=$('simVerdict');
+ if(profit<0){v.textContent='🔴 LOSING money daily — fees exceed revenue. Lower fees or longer contract won\'t save this.';v.style.color='var(--red)'}
+ else if(total<budget){v.textContent='🟡 Earning daily, but total won\'t cover the $'+budget+' contract. Break-even NOT reached.';v.style.color='var(--gold2)'}
+ else{v.textContent='🟢 PROFITABLE! Total exceeds contract cost. Break-even in ~'+Math.ceil(budget/(profit*30*1)*30)+' days.';v.style.color='var(--green)'}
+ const mv=$('mineVisual');mv.innerHTML='';const n=Math.min(24,Math.max(2,Math.round(hash/20)));
+ for(let i=0;i<n;i++){const d=document.createElement('div');d.style.animationDelay=(i*0.05)+'s';mv.appendChild(d)}
+}
+['inBudget','inHash','inBtc','inFee','inMonths'].forEach(id=>$(id).addEventListener('input',sim));
+
+// Quiz
+const QUIZ=[
+ {q:"What do you actually rent in cloud mining?",o:["Physical machines delivered to your home","Hash power (TH/s) run in a remote data centre","Bitcoin wallets","Electricity cables"],a:1},
+ {q:"What does hash rate (TH/s) measure?",o:["Internet speed","Guesses per second your power can make","Amount of BTC you own","Contract price"],a:1},
+ {q:"Daily profit = ?",o:["Contract price × BTC price","Daily revenue − daily maintenance fee","Hash rate + fees","Block reward ÷ 2"],a:1},
+ {q:"What happens at a Bitcoin halving?",o:["Block reward doubles","Block reward is cut in half","Mining becomes free","Difficulty disappears"],a:1},
+ {q:"When many new miners join, difficulty…",o:["Stays the same","Decreases permanently","Increases to keep blocks ~10 min apart","Stops adjusting"],a:2},
+ {q:"Which is a scam red flag?",o:["Clear daily fees shown","Guaranteed profit with zero risk","Live mining stats","Realistic returns"],a:1},
+ {q:"If daily fees exceed daily revenue, you…",o:["Profit more","Break even","Lose money every day","Get a refund automatically"],a:2},
+ {q:"Pool mining vs solo mining: pools give…",o:["Rare huge jackpots","Small steady payouts shared proportionally","No payouts at all","Double rewards"],a:1}
+];
+let qi=0,qCorrect=0,answered=false;
+function renderQ(){
+ answered=false;$('qNext').style.display='none';$('qFeedback').textContent='';
+ const Q=QUIZ[qi];$('qProgress').textContent=`Question ${qi+1} of ${QUIZ.length}`;
+ $('qBar').style.width=(qi/QUIZ.length*100)+'%';
+ $('qText').textContent=(qi+1)+'. '+Q.q;
+ const box=$('qOpts');box.innerHTML='';
+ Q.o.forEach((t,i)=>{const b=document.createElement('button');b.className='opt';b.textContent=String.fromCharCode(65+i)+'. '+t;b.onclick=()=>answer(i,b);box.appendChild(b)});
+}
+function answer(i,btn){
+ if(answered)return;answered=true;
+ const Q=QUIZ[qi];const kids=[...document.querySelectorAll('#qOpts .opt')];
+ kids.forEach(b=>b.disabled=true);
+ if(i===Q.a){btn.classList.add('correct');qCorrect++;$('qFeedback').textContent='✅ Correct!';$('qFeedback').style.color='var(--green)'}
+ else{btn.classList.add('wrong');kids[Q.a].classList.add('correct');$('qFeedback').textContent='❌ Not quite. Correct answer is highlighted.';$('qFeedback').style.color='var(--red)'}
+ $('qNext').textContent=qi<QUIZ.length-1?'Next →':'See Results 🎓';
+ $('qNext').style.display='inline-block';
+}
+function nextQ(){
+ if(qi<QUIZ.length-1){qi++;renderQ()}
+ else{
+  quizScore=Math.round(qCorrect/QUIZ.length*100);
+  localStorage.setItem('qm_score',quizScore);
+  $('quizBox').style.display='none';
+  const pass=quizScore>=50;
+  $('quizResult').style.display='block';
+  $('quizResult').innerHTML=`<div style="font-size:50px">${pass?'🎉':'📚'}</div><h2>Your Score: ${quizScore}% (${qCorrect}/${QUIZ.length})</h2><p>${pass?'You passed! Generate your certificate in the Certificate tab.':'You need 50% to pass. Review lessons and <button class="copy-btn" onclick="retake()">Retake Quiz</button>'}</p>${pass?'<button class="btn btn-gold" style="margin-top:12px" onclick="go(\'cert\');document.getElementById(\'fScore\').value='+quizScore+';renderCert()">Get Certificate →</button>':''}`;
+  $('fScore').value=quizScore;renderCert();updateProgress();
+ }
+}
+function retake(){qi=0;qCorrect=0;$('quizBox').style.display='block';$('quizResult').style.display='none';renderQ()}
+quizScore=localStorage.getItem('qm_score')!==null?+localStorage.getItem('qm_score'):null;
+if(quizScore!==null){$('fScore')&&($('fScore').value=quizScore)}
+
+// Certificate
+function setGender(g){gender=g;$('gM').classList.toggle('sel',g==='Male');$('gF').classList.toggle('sel',g==='Female');renderCert()}
+function grade(s){if(s>=90)return'A — Excellent';if(s>=75)return'B — Very Good';if(s>=50)return'C — Pass';return'F — Fail'}
+function renderCert(){
+ const name=($('fName').value||'Your Name').trim()||'Your Name';
+ const title=gender==='Male'?'Mr. ':gender==='Female'?'Ms. ':'';
+ const s=parseFloat($('fScore').value);
+ const sTxt=isNaN(s)?'—':s+'%';
+ const saved=JSON.parse(localStorage.getItem('qm_cert')||'null');
+ $('cName').textContent=title+name;
+ $('cScore').textContent='Score: '+sTxt+(gender?' • '+gender:'');
+ $('cMeta').textContent='Grade: '+(isNaN(s)?'—':grade(s))+' • Date: '+(saved?saved.date:new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}))+' • ID: '+(saved?saved.id:'QCM-________');
+}
+function issueCert(){
+ const name=$('fName').value.trim();
+ const s=parseFloat($('fScore').value);
+ if(name.length<2){$('certMsg').textContent='⚠️ Please enter your full name.';$('certMsg').style.color='var(--red)';return}
+ if(!gender){$('certMsg').textContent='⚠️ Please select Male or Female.';$('certMsg').style.color='var(--red)';return}
+ if(isNaN(s)||s<0||s>100){$('certMsg').textContent='⚠️ Enter a valid score (0–100). Take the quiz to auto-fill.';$('certMsg').style.color='var(--red)';return}
+ if(s<50){$('certMsg').textContent='⚠️ Score below 50% cannot earn a certificate. Retake the quiz!';$('certMsg').style.color='var(--red)';return}
+ const cert={name,gender,score:s,title:gender==='Male'?'Mr.':'Ms.',date:new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}),id:'QCM-'+Date.now().toString(36).toUpperCase()};
+ localStorage.setItem('qm_cert',JSON.stringify(cert));
+ $('certMsg').textContent='🎉 Certificate issued to '+cert.title+' '+name+' — '+s+'%! Use Print to save as PDF.';$('certMsg').style.color='var(--green)';
+ renderCert();updateProgress();
+}
+// restore saved cert
+(function(){const c=JSON.parse(localStorage.getItem('qm_cert')||'null');if(c){$('fName').value=c.name;$('fScore').value=c.score;setGender(c.gender)}})();
+
+// Partner modal
+function openPartner(){$('partnerModal').classList.add('open')}
+function closePartner(){$('partnerModal').classList.remove('open')}
+$('partnerModal').addEventListener('click',e=>{if(e.target.id==='partnerModal')closePartner()});
+function copyAcct(){navigator.clipboard.writeText('8130522995').then(()=>$('copyMsg').textContent='✅ 8130522995 copied!').catch(()=>$('copyMsg').textContent='Account: 8130522995 (OPAY)')}
+
+// ---- Simple login (demo: stored only in this browser) ----
+let upGender='';
+let currentUser=JSON.parse(localStorage.getItem('qm_user')||'null');
+function updUpGender(){$('upM').classList.toggle('sel',upGender==='Male');$('upF').classList.toggle('sel',upGender==='Female')}
+function authMode(m){
+ const up=m==='up';
+ $('upForm').style.display=up?'block':'none';$('inForm').style.display=up?'none':'block';
+ $('tabUp').className='btn '+(up?'btn-gold':'btn-ghost');$('tabIn').className='btn '+(up?'btn-ghost':'btn-gold');
+ $('authMsg').textContent='';
+}
+async function hashPw(s){
+ try{
+  if(window.crypto&&crypto.subtle){
+   const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('qm_salt_'+s));
+   return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
+  }
+ }catch(e){}
+ let x=5381;for(let i=0;i<s.length;i++)x=((x<<5)+x+s.charCodeAt(i))>>>0;return 'dj'+x.toString(16);
+}
+function getUsers(){try{return JSON.parse(localStorage.getItem('qm_users')||'{}')}catch(e){return{}}}
+async function doSignup(){
+ const name=$('upName').value.trim(),email=$('upEmail').value.trim().toLowerCase(),pw=$('upPass').value;
+ const msg=$('authMsg');
+ if(name.length<2){msg.textContent='⚠️ Enter your full name.';msg.style.color='var(--red)';return}
+ if(!upGender){msg.textContent='⚠️ Select Male or Female.';msg.style.color='var(--red)';return}
+ if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){msg.textContent='⚠️ Enter a valid email.';msg.style.color='var(--red)';return}
+ if(pw.length<4){msg.textContent='⚠️ Password needs at least 4 characters.';msg.style.color='var(--red)';return}
+ const users=getUsers();
+ if(users[email]){msg.textContent='⚠️ Account exists — please Sign In.';msg.style.color='var(--red)';return}
+ users[email]={name:name,gender:upGender,email:email,ph:await hashPw(pw)};
+ localStorage.setItem('qm_users',JSON.stringify(users));
+ setUser(users[email]);
+}
+async function doSignin(){
+ const email=$('inEmail').value.trim().toLowerCase(),pw=$('inPass').value;
+ const msg=$('authMsg');
+ const u=getUsers()[email];
+ if(!u||u.ph!==await hashPw(pw)){msg.textContent='⚠️ Wrong email or password.';msg.style.color='var(--red)';return}
+ setUser(u);
+}
+function setUser(u){
+ currentUser=u;localStorage.setItem('qm_user',JSON.stringify(u));
+ $('authScreen').style.display='none';
+ paintUser();
+ if(u){$('fName').value=u.name;setGender(u.gender);renderCert()}
+ updateProgress();
+}
+function paintUser(){
+ const logged=!!currentUser;
+ $('userChip').style.display=logged?'inline':'none';
+ $('logoutBtn').style.display=logged?'inline-block':'none';
+ if(logged)$('userChip').textContent='👤 '+currentUser.name;
+}
+function logout(){currentUser=null;localStorage.removeItem('qm_user');paintUser();showAuth()}
+function showAuth(){$('authScreen').style.display='flex';authMode('up')}
+function requireAuth(what){
+ if(currentUser)return true;
+ showAuth();
+ $('authMsg').textContent='⚠️ Please login or sign up to access '+what+'.';
+ $('authMsg').style.color='var(--gold2)';
+ return false;
+}
+
+renderLessons();sim();renderQ();renderCert();updateProgress();paintUser();
+if(!currentUser)showAuth();
+</script>
+</body>
+</html>

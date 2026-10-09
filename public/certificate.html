@@ -31,6 +31,7 @@
       <!-- Recipient -->
       <div class="cert-recipient">
         <h1 id="certName">Your Name</h1>
+        <p id="certGenderScore" style="display:inline-block;background:#1a1a2e;color:#ffcf6b;padding:6px 20px;border-radius:16px;font-weight:700;font-size:15px;margin:8px 0">Score: —</p>
         <h2>Bitcoin Mining Fundamentals</h2>
         <p class="cert-subtitle">Certificate of Completion</p>
         <p class="cert-date" id="certDate">September 29th, 2026</p>
@@ -73,6 +74,21 @@
   <div class="cert-actions no-print">
     <button class="action" onclick="window.print()">Print / Save as PDF</button>
     <a href="/index.html" class="secondary">Back to Home</a>
+    <button class="action" style="background:linear-gradient(135deg,#2fd08c,#1ea76c)" onclick="document.getElementById('partnerModal').style.display='flex'">🤝 Partner with Developer</button>
+  </div>
+  <div id="partnerModal" class="no-print" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:18px" onclick="if(event.target.id==='partnerModal')this.style.display='none'">
+    <div style="background:#fff;color:#333;border-radius:18px;max-width:420px;width:100%;padding:28px;text-align:center">
+      <div style="font-size:44px">🤝</div>
+      <h2>Partner with the Developer</h2>
+      <p style="color:#666;font-size:14px">Send partnership / support to:</p>
+      <div style="background:#f8f9fa;border:2px dashed #f7931a;border-radius:12px;padding:18px;margin:16px 0">
+        <small style="color:#999">OPAY ACCOUNT NUMBER</small>
+        <div style="font-size:30px;font-weight:800;letter-spacing:2px">8130522995</div>
+        <small style="color:#999">Bank: OPAY • Qubators Developer</small>
+      </div>
+      <button class="action" onclick="navigator.clipboard.writeText('8130522995')">📋 Copy Number</button><br>
+      <button class="secondary" onclick="document.getElementById('partnerModal').style.display='none'">Close</button>
+    </div>
   </div>
   </main>
 
@@ -82,6 +98,20 @@
     requireAuth();
 
     async function loadCertificate() {
+      // 1) Standalone app certificate (name + gender + score, no login needed)
+      try {
+        const local = JSON.parse(localStorage.getItem('qm_cert') || 'null');
+        if (local) {
+          const title = local.gender === 'Male' ? 'Mr. ' : local.gender === 'Female' ? 'Ms. ' : '';
+          document.getElementById('certName').textContent = title + local.name;
+          document.getElementById('certNameBody').textContent = title + local.name;
+          document.getElementById('certGenderScore').textContent = 'Score: ' + local.score + '% • ' + local.gender;
+          document.getElementById('certDate').textContent = local.date;
+          document.getElementById('certIssued').textContent = local.date;
+          document.getElementById('certId').textContent = local.id;
+          return;
+        }
+      } catch (e) {}
       try {
         const data = await api('/certificate');
         if (!data.complete) {
