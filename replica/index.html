@@ -301,7 +301,7 @@ function refreshAll(){
   const done=["stage1","stage2","stage3"].every(s=>p[s]&&p[s].completed);
   const users=store.users(), name=user?(users[user]||{}).name:"Your Name";
   document.getElementById("certArea").innerHTML=done?
-    '<div class="cert"><h2>Certificate of Completion</h2><p>This certifies that</p><h1>'+name+'</h1><p>completed Bitcoin Mining Fundamentals: Basics, Economics, Network Effects.</p><p>Certificate ID: QCM-'+String(Date.now()).slice(-8)+'</p><p>Signed: Chidiwokocha, Head of Qubators Team</p></div>'
+    '<div class="cert"><h2>Certificate of Completion</h2><p>This certifies that</p><h1>'+name+'</h1><p>completed Bitcoin Mining Fundamentals: Basics, Economics, Network Effects.</p><p>Certificate ID: QCM-'+String(Date.now()).slice(-8)+'</p><p>Signed: Pastor Yemisi Kudehinbu, Head of Qubators Team</p></div>'
     :'<p style="color:var(--muted)">Complete and save all 3 stages to earn your certificate ('+[p.stage1?"x":"·",p.stage2?"x":"·",p.stage3?"x":"·"].join(" ")+').</p>';
 }
 
