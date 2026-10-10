@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Project Proposal — Qubators Miner</title>
+<meta name="theme-color" content="#0b0f14">
+<meta name="description" content="Official product and partnership proposal for Qubators Miner: free interactive cloud-mining education for everyone.">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;background:#0b0f14;color:#eef2f7;min-height:100vh;line-height:1.7}
+a{color:#f5a623}
+.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:rgba(11,15,20,.95);border-bottom:1px solid #28303d}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px}
+.wrap{max-width:900px;margin:0 auto;padding:24px 18px 80px}
+.cover{text-align:center;padding:48px 20px;background:linear-gradient(135deg,#141a25,#1d1430);border:1px solid #28303d;border-radius:20px;margin-bottom:20px}
+.cover .big{font-size:56px}
+.cover h1{font-size:clamp(26px,5vw,40px);font-weight:900}
+.cover h1 em{color:#f5a623;font-style:normal}
+.cover .doc{letter-spacing:4px;font-size:12px;color:#9aa6b5;font-weight:700;margin-bottom:10px}
+.cover table{margin:18px auto 0;font-size:13.5px;color:#cfd6e0;border-collapse:collapse}
+.cover td{padding:4px 14px;text-align:left}
+.cover td:first-child{color:#9aa6b5}
+.card{background:#151b23;border:1px solid #28303d;border-radius:16px;padding:24px;margin-bottom:16px}
+.card h2{font-size:20px;margin-bottom:10px;color:#ffcf6b}
+.card h2 .n{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:#f5a623;color:#1a1206;font-size:15px;margin-right:8px;vertical-align:middle}
+.card h3{font-size:15px;margin:14px 0 4px;color:#ffcf6b}
+.card p,.card li{font-size:14.5px;color:#cfd6e0}
+.card ul,.card ol{padding-left:20px}
+.card table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+.card th,.card td{text-align:left;padding:10px;border-bottom:1px solid #28303d;vertical-align:top}
+.card th{color:#9aa6b5;font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+.btn{display:inline-block;padding:12px 24px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;border:none;text-decoration:none}
+.btn-gold{background:#f5a623;color:#1a1206}
+.btn-ghost{background:transparent;color:#fff;border:1px solid #444}
+.btn-green{background:linear-gradient(135deg,#2fd08c,#1ea76c);color:#04271a}
+.acct{background:#0b0f14;border:2px dashed #f5a623;border-radius:12px;padding:18px;margin:14px 0;text-align:center}
+.acct b{font-size:30px;letter-spacing:3px;color:#ffcf6b;display:block}
+.tier{border:1px solid #28303d;border-radius:12px;padding:16px;margin:10px 0;background:#1c232e}
+.tier h3{margin:0 0 4px}
+.tier p{font-size:13.5px}
+footer{text-align:center;color:#9aa6b5;font-size:12px;padding:26px}
+@media print{
+ body{background:#fff;color:#111}
+ .topbar,.no-print{display:none}
+ .cover,.card{border:1px solid #ccc;background:#fff}
+ .cover h1 em,.card h2,.card h3{color:#111}
+ .card p,.card li,.card td{color:#222}
+ a{color:#111;text-decoration:none}
+}
+</style>
+</head>
+<body>
+<header class="topbar no-print">
+  <div class="logo">⛏️ Qubators Miner</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <a class="btn btn-ghost" style="padding:8px 16px" href="qubators-miner.html">Open App</a>
+    <a class="btn btn-ghost" style="padding:8px 16px" href="about.html">About</a>
+    <button class="btn btn-gold" style="padding:8px 16px" onclick="window.print()">🖨️ Print / PDF</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="cover">
+    <div class="doc">PRODUCT &amp; PARTNERSHIP PROPOSAL</div>
+    <div class="big">⛏️</div>
+    <h1>Qubators <em>Miner</em></h1>
+    <p style="color:#9aa6b5;max-width:600px;margin:8px auto 0">Free interactive education in cloud mining — learn, simulate, get certified. On Android, Windows, macOS and the web.</p>
+    <table>
+      <tr><td>Version</td><td><b>v1.1 (live)</b></td></tr>
+      <tr><td>Date</td><td>October 2026</td></tr>
+      <tr><td>Prepared by</td><td><b>Chidiwokocha</b>, Head of Qubators Team</td></tr>
+      <tr><td>Live product</td><td><a href="https://chidiwokocha401-beep.github.io/qubators-miner/">chidiwokocha401-beep.github.io/qubators-miner</a></td></tr>
+      <tr><td>Source code</td><td><a href="https://github.com/chidiwokocha401-beep/qubators-miner">github.com/chidiwokocha401-beep/qubators-miner</a> (public)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2><span class="n">1</span>Executive summary</h2>
+    <p>Interest in Bitcoin mining is global, but honest, beginner-friendly education is scarce — and fake "cloud mining" scams drain victims daily. <b>Qubators Miner</b> is a free, interactive, offline-capable app that teaches how cloud mining truly works, lets learners simulate contracts with zero real money, tests them with a quiz, and issues a <b>personalized Certificate of Completion</b> (name, Mr./Ms. title, gender, score, grade). It is live today on four platforms, and this proposal invites partners to help scale it.</p>
+  </div>
+
+  <div class="card">
+    <h2><span class="n">2</span>The problem</h2>
+    <ul>
+      <li><b>Knowledge gap:</b> most beginners cannot explain hash rate, difficulty, halving or break-even — yet these decide profit or loss.</li>
+      <li><b>Scam epidemic:</b> fake cloud-mining sites promise "guaranteed daily profit," lock withdrawals behind "upgrade fees," and run Ponzi-style referral payouts.</li>
+      <li><b>Existing resources</b> are text-heavy, technical, or tied to selling hardware/contracts — not neutral, hands-on learning.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2><span class="n">3</span>The solution</h2>
+    <p>A neutral, interactive school for cloud mining that runs on any device:</p>
+    <ul>
+      <li><b>Learn</b> — 4 guided lessons with progress tracking.</li>
+      <li><b>Simulate</b> — live profitability playground (hash rate, fees, BTC price, duration) with animated rigs and verdicts.</li>
+      <li><b>Prove</b> — 8-question quiz, 50% pass mark, instant feedback.</li>
+      <li><b>Certify</b> — printable certificate with name, gender title, score, grade, date and ID.</li>
+      <li><b>Stay safe</b> — scam red-flag training woven through every stage.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2><span class="n">4</span>Product status — what is built (v1.1, live)</h2>
+    <table>
+      <tr><th>Component</th><th>Status</th></tr>
+      <tr><td>Login page (signup/sign-in, Male/Female, logout)</td><td>✅ Live</td></tr>
+      <tr><td>4 interactive lessons + progress bar</td><td>✅ Live</td></tr>
+      <tr><td>Mining simulator + scam-awareness content</td><td>✅ Live</td></tr>
+      <tr><td>8-question quiz with saved score</td><td>✅ Live</td></tr>
+      <tr><td>Certificate (name, Mr./Ms., gender, score, grade, print/PDF)</td><td>✅ Live</td></tr>
+      <tr><td>Partner button (OPAY 8130522995, one-tap copy)</td><td>✅ Live</td></tr>
+      <tr><td>Installable PWA + offline mode</td><td>✅ Live</td></tr>
+      <tr><td>Android APK / Windows EXE / macOS DMG</td><td>✅ Released (v1.1)</td></tr>
+      <tr><td>Demo page + 67-sec product video</td><td>✅ Live</td></tr>
+      <tr><td>About page</td><td>✅ Live</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2><span class="n">5</span>Target users</h2>
+    <ul>
+      <li><b>Beginners</b> curious about Bitcoin mining with no technical background.</li>
+      <li><b>Students &amp; youth</b> seeking free, verifiable digital skills (certificate included).</li>
+      <li><b>At-risk users</b> encountering "invest and earn daily" schemes who need scam literacy.</li>
+      <li><b>Educators &amp; communities</b> needing a ready-made, offline-capable teaching tool.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2><span class="n">6</span>Sustainability model</h2>
+    <p>The app is and remains <b>free for learners</b>. Sustainability is partnership-based:</p>
+    <ul>
+      <li><b>Voluntary partnerships/support</b> via the in-app Partner button (OPAY 8130522995).</li>
+      <li><b>Proposed (future):</b> sponsored lesson slots from legitimate educators, verified-certificate issuance for institutions, and optional translations — all clearly labeled, never paywalling core learning.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2><span class="n">7</span>Roadmap</h2>
+    <table>
+      <tr><th>Phase</th><th>Goals</th></tr>
+      <tr><td><b>v1.2</b> (next)</td><td>More quiz questions, Hausa/Yoruba/Igbo language options, push-notification lesson reminders, shareable certificate links.</td></tr>
+      <tr><td><b>v2.0</b></td><td>Institution dashboard (verify certificates by ID), classroom mode, scam-report community board.</td></tr>
+      <tr><td><b>Long term</b></td><td>Google Play + Microsoft Store listings, curriculum partnerships with schools and hubs.</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2><span class="n">8</span>Partnership tiers</h2>
+    <div class="tier"><h3>🤝 Supporter</h3><p>Any voluntary contribution. Funds hosting, builds and new lessons. Supporters are thanked in release notes (with permission).</p></div>
+    <div class="tier"><h3>🏫 Education Partner</h3><p>Schools, hubs and communities adopting Qubators Miner for training. Includes onboarding help and co-branded certificates (proposed).</p></div>
+    <div class="tier"><h3>🏆 Sponsor</h3><p>Funds a roadmap phase (e.g. translations, institution dashboard). Public credit on the About page and release notes.</p></div>
+    <div class="acct">
+      <small style="color:#9aa6b5">PARTNERSHIP ACCOUNT — OPAY</small>
+      <b>8130522995</b>
+      <small style="color:#9aa6b5">Qubators Developer • Keep your receipt after sending</small><br>
+      <button class="btn btn-gold no-print" style="margin-top:10px" onclick="navigator.clipboard.writeText('8130522995').then(()=>document.getElementById('cp2').textContent='✅ Copied!')">📋 Copy Account Number</button>
+      <span id="cp2" style="font-size:13px;color:#2fd08c;margin-left:8px"></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="n">9</span>Team &amp; contact</h2>
+    <ul>
+      <li><b>Chidiwokocha</b> — Founder &amp; Head of Qubators Team (design, engineering, content).</li>
+      <li><b>Product:</b> <a href="https://chidiwokocha401-beep.github.io/qubators-miner/">live site</a> • <b>Code:</b> <a href="https://github.com/chidiwokocha401-beep/qubators-miner">public repo</a> • <b>Downloads:</b> <a href="https://github.com/chidiwokocha401-beep/qubators-miner/releases/tag/v1.1">v1.1 release</a> • <b>Demo video:</b> <a href="https://github.com/chidiwokocha401-beep/qubators-miner/releases/download/v1.1/qubators-demo.mp4">MP4</a></li>
+    </ul>
+    <div class="no-print" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+      <a class="btn btn-gold" href="qubators-miner.html">Open the App</a>
+      <a class="btn btn-ghost" href="about.html">About Page</a>
+      <button class="btn btn-green" onclick="window.print()">🖨️ Print / Save PDF</button>
+    </div>
+  </div>
+</div>
+
+<footer>Qubators Miner — Proposal v1.1 • October 2026 • Educational simulation only. © 2026 Qubators.</footer>
+</body>
+</html>
