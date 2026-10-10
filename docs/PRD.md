@@ -69,10 +69,11 @@ Qubators Miner is a free, interactive educational app that teaches how **cloud m
 ### 4.5 Certificate of Completion
 
 - **FR-501:** Form: full name, gender (Male/Female radio), score (editable, 0–100).
-- **FR-502:** Live preview renders `Mr. <Name>` / `Ms. <Name>`, `Score: X% • Gender`, grade (A ≥90, B ≥75, C ≥50, F <50), date, unique ID (`QCM-…`).
+- **FR-502:** Live preview renders `Mr. <Name>` / `Ms. <Name>`, `Score: X% • Gender`, grade (A ≥90, B ≥75, C ≥50, F <50), date, unique verifiable ID (`QCM2.<payload>.<checksum>`), plus a shareable `verify.html?id=…` link with one-tap copy.
 - **FR-503:** Issue requires: name ≥2 chars, gender selected, score 0–100 and ≥50. Each failure shows a specific message.
 - **FR-504:** Issued certificates persist; Print / Save-as-PDF works via print stylesheet.
 - **FR-505:** Signatory line reads **Pastor Yemisi Kudehinbu**.
+- **FR-506:** Public `verify.html` validates any pasted ID (checksum + payload decode, legacy `QCM-` IDs checked against the issuing device only) and supports `?id=` deep links; checksum scheme is tamper-evident, not tamper-proof — server registry remains a v2.0 item.
 
 ### 4.6 Partner with the developer
 

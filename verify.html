@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Verify Certificate — Qubators Miner</title>
+<meta name="theme-color" content="#0b0f14">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;background:#0b0f14;color:#eef2f7;min-height:100vh;line-height:1.6}
+a{color:#f5a623}
+.topbar{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:rgba(11,15,20,.95);border-bottom:1px solid #28303d}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px}
+.wrap{max-width:640px;margin:0 auto;padding:28px 18px 80px}
+.hero{text-align:center;padding:30px 10px}
+.hero h1{font-size:clamp(24px,5vw,36px);font-weight:900}
+.hero h1 em{color:#f5a623;font-style:normal}
+.hero p{color:#9aa6b5}
+.card{background:#151b23;border:1px solid #28303d;border-radius:16px;padding:24px;margin-top:16px}
+label{display:block;font-size:12.5px;color:#9aa6b5;margin-bottom:6px;font-weight:600}
+input[type=text]{width:100%;padding:13px;border-radius:10px;border:1px solid #28303d;background:#0b0f14;color:#eef2f7;font-size:14px}
+.btn{display:inline-block;padding:12px 24px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;border:none;text-decoration:none;margin-top:12px}
+.btn-gold{background:#f5a623;color:#1a1206}
+.btn-ghost{background:transparent;color:#fff;border:1px solid #444}
+#result{margin-top:16px;display:none;border-radius:14px;padding:22px;text-align:center}
+#result.valid{background:rgba(47,208,140,.1);border:2px solid #2fd08c}
+#result.invalid{background:rgba(224,82,82,.1);border:2px solid #e05252}
+#result .big{font-size:44px}
+#result h2{margin:6px 0}
+#result table{margin:12px auto 0;font-size:14px;border-collapse:collapse}
+#result td{padding:4px 12px;text-align:left}
+#result td:first-child{color:#9aa6b5}
+.note{font-size:12px;color:#9aa6b5;margin-top:14px;text-align:center}
+footer{text-align:center;color:#9aa6b5;font-size:12px;padding:26px}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="logo">⛏️ Qubators Miner</div>
+  <div style="display:flex;gap:8px">
+    <a class="btn btn-ghost" style="padding:8px 16px" href="qubators-miner.html">Open App</a>
+    <a class="btn btn-ghost" style="padding:8px 16px" href="about.html">About</a>
+  </div>
+</header>
+<div class="wrap">
+  <div class="hero">
+    <h1>🔍 Verify a <em>Certificate</em></h1>
+    <p>Paste a Qubators Miner certificate ID to check it instantly.</p>
+  </div>
+  <div class="card">
+    <label for="vId">Certificate ID (e.g. QCM2.…)</label>
+    <input type="text" id="vId" placeholder="Paste the certificate ID here">
+    <button class="btn btn-gold" onclick="doVerify()">Verify →</button>
+    <div id="result"></div>
+  </div>
+  <p class="note">Verification checks the code's built-in checksum and reads its signed details. A server-backed institutional registry arrives in v2.0.</p>
+</div>
+<footer>Qubators Miner — Educational simulation only. © 2026 Qubators.</footer>
+<script>
+const QM_PEPPER='qubators-miner-v2::tamper-evident::2026';
+function cyrb53(str,seed){seed=seed||0;let h1=0xdeadbeef^seed,h2=0x41c6ce57^seed;for(let i=0;i<str.length;i++){const ch=str.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677)}h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);return 4294967296*(2097151&h2)+(h1>>>0)}
+function b64urlDecode(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return decodeURIComponent(escape(atob(s)))}
+function checkCode(code){
+ code=(code||'').trim();
+ const legacy=/^QCM-[A-Za-z0-9]+$/.exec(code);
+ if(legacy){
+  try{
+   const mine=JSON.parse(localStorage.getItem('qm_cert')||'null');
+   if(mine&&(mine.id===code||mine.code===code))return{ok:true,legacy:true,data:{n:mine.name,g:mine.gender,s:mine.score,d:mine.date}};
+  }catch(e){}
+  return{ok:false,why:'Legacy ID format — verifiable only on the device that issued it. Ask the holder to re-issue from the app.'};
+ }
+ const m=/^QCM2\.([A-Za-z0-9\-_]+)\.([A-Z0-9]{7})$/.exec(code);
+ if(!m)return{ok:false,why:'Unrecognized format. A valid ID looks like QCM2.…(details).…(checksum).'};
+ const want=cyrb53(QM_PEPPER+m[1]).toString(36).toUpperCase().replace(/[^A-Z0-9]/g,'').padStart(7,'X').slice(-7);
+ if(want!==m[2])return{ok:false,why:'Checksum mismatch — the ID was mistyped or tampered with.'};
+ let d;try{d=JSON.parse(b64urlDecode(m[1]))}catch(e){return{ok:false,why:'Unreadable details.'}}
+ if(!d.n||(d.s!==0&&!d.s)||!d.d)return{ok:false,why:'Incomplete details.'};
+ return{ok:true,data:d};
+}
+function grade(s){if(s>=90)return'A — Excellent';if(s>=75)return'B — Very Good';if(s>=50)return'C — Pass';return'F — Fail'}
+function doVerify(){
+ const r=checkCode(document.getElementById('vId').value);
+ const box=document.getElementById('result');
+ box.style.display='block';
+ if(!r.ok){
+  box.className='invalid';
+  box.innerHTML='<div class="big">❌</div><h2>Not Valid</h2><p>'+r.why+'</p>';
+  return;
+ }
+ const d=r.data;
+ const title=(d.g==='M'||d.g==='Male')?'Mr.':(d.g==='F'||d.g==='Female')?'Ms.':'';
+ const gtxt=d.g==='M'?'Male':d.g==='F'?'Female':d.g;
+ box.className='valid';
+ box.innerHTML='<div class="big">✅</div><h2>Valid Certificate'+(r.legacy?' (this device)':'')+'</h2>'
+  +'<table><tr><td>Holder</td><td><b>'+title+' '+d.n+'</b></td></tr>'
+  +'<tr><td>Gender</td><td>'+gtxt+'</td></tr>'
+  +'<tr><td>Score</td><td><b>'+d.s+'%</b> ('+grade(d.s)+')</td></tr>'
+  +'<tr><td>Date</td><td>'+d.d+'</td></tr>'
+  +'<tr><td>Course</td><td>Cloud Mining Fundamentals</td></tr>'
+  +'<tr><td>Signed</td><td>Pastor Yemisi Kudehinbu</td></tr></table>';
+}
+(function(){
+ const q=new URLSearchParams(location.search).get('id');
+ if(q){document.getElementById('vId').value=q;doVerify()}
+})();
+</script>
+</body>
+</html>

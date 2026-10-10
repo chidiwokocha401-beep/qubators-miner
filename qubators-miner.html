@@ -244,6 +244,11 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:24px}
         <button class="btn btn-gold" onclick="issueCert()">✅ Issue Certificate</button>
         <button class="btn btn-ghost" onclick="window.print()">🖨️ Print / Save PDF</button>
       </div>
+      <div id="verifyRow" style="display:none;gap:10px;margin-top:10px;flex-wrap:wrap">
+        <input type="text" id="verifyLink" readonly style="flex:1;min-width:220px;padding:12px;border-radius:10px;border:1px solid var(--border);background:#0b0f14;color:var(--text);font-size:12px">
+        <button class="btn btn-ghost" onclick="copyVerify()">📋 Copy Verify Link</button>
+        <a class="btn btn-ghost" href="verify.html">🔍 Verify a Certificate</a>
+      </div>
       <p id="certMsg" style="margin-top:10px;font-size:13px"></p>
     </div>
     <div class="cert-preview" id="certPreview">
@@ -254,7 +259,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:24px}
       <p style="font-size:14px;color:#555" id="cSub">has successfully completed training in <b>Cloud Mining Fundamentals</b>: how cloud mining works, contract economics, risks &amp; scam awareness, and profitability simulation.</p>
       <div><span class="c-score" id="cScore">Score: —</span></div>
       <div class="c-meta" id="cMeta">Grade: — • Date: — • ID: QCM-________</div>
-      <div class="c-sign"><span>_________________<br><b>Pastor Yemisi Kudehinbu</b><br>Head, Qubators Team</span><span style="text-align:right">⛏️ Qubators Miner<br>Verify: qubators.com/verify</span></div>
+      <div class="c-sign"><span>_________________<br><b>Pastor Yemisi Kudehinbu</b><br>Head, Qubators Team</span><span style="text-align:right">⛏️ Qubators Miner<br>Verify ID online at verify.html</span></div>
     </div>
   </section>
 
@@ -425,6 +430,25 @@ function renderCert(){
  $('cScore').textContent='Score: '+sTxt+(gender?' • '+gender:'');
  $('cMeta').textContent='Grade: '+(isNaN(s)?'—':grade(s))+' • Date: '+(saved?saved.date:new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}))+' • ID: '+(saved?saved.id:'QCM-________');
 }
+// ---- Verifiable certificate codes (tamper-evident checksum, v2) ----
+const QM_PEPPER='qubators-miner-v2::tamper-evident::2026';
+function cyrb53(str,seed){seed=seed||0;let h1=0xdeadbeef^seed,h2=0x41c6ce57^seed;for(let i=0;i<str.length;i++){const ch=str.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677)}h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);return 4294967296*(2097151&h2)+(h1>>>0)}
+function b64urlEncode(s){return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+function makeCode(name,gender,score,dateStr){
+ const p=b64urlEncode(JSON.stringify({n:name,g:gender==='Male'?'M':'F',s:score,d:dateStr}));
+ const c=cyrb53(QM_PEPPER+p).toString(36).toUpperCase().replace(/[^A-Z0-9]/g,'').padStart(7,'X').slice(-7);
+ return 'QCM2.'+p+'.'+c;
+}
+function verifyURL(code){
+ let base=location.href.split('?')[0];
+ base=base.slice(0,base.lastIndexOf('/')+1);
+ return base+'verify.html?id='+encodeURIComponent(code);
+}
+function copyVerify(){
+ const v=$('verifyLink').value;
+ if(!v)return;
+ navigator.clipboard.writeText(v).then(()=>{$('certMsg').textContent='🔗 Verify link copied — anyone can check this certificate at the link.';$('certMsg').style.color='var(--green)'});
+}
 function issueCert(){
  const name=$('fName').value.trim();
  const s=parseFloat($('fScore').value);
@@ -432,9 +456,13 @@ function issueCert(){
  if(!gender){$('certMsg').textContent='⚠️ Please select Male or Female.';$('certMsg').style.color='var(--red)';return}
  if(isNaN(s)||s<0||s>100){$('certMsg').textContent='⚠️ Enter a valid score (0–100). Take the quiz to auto-fill.';$('certMsg').style.color='var(--red)';return}
  if(s<50){$('certMsg').textContent='⚠️ Score below 50% cannot earn a certificate. Retake the quiz!';$('certMsg').style.color='var(--red)';return}
- const cert={name,gender,score:s,title:gender==='Male'?'Mr.':'Ms.',date:new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}),id:'QCM-'+Date.now().toString(36).toUpperCase()};
+ const iso=new Date().toISOString().slice(0,10);
+ const code=makeCode(name,gender,s,iso);
+ const cert={name,gender,score:s,title:gender==='Male'?'Mr.':'Ms.',date:new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}),id:code,code:code};
  localStorage.setItem('qm_cert',JSON.stringify(cert));
  $('certMsg').textContent='🎉 Certificate issued to '+cert.title+' '+name+' — '+s+'%! Use Print to save as PDF.';$('certMsg').style.color='var(--green)';
+ $('verifyLink').value=verifyURL(code);
+ $('verifyRow').style.display='flex';
  renderCert();updateProgress();
 }
 // restore saved cert
