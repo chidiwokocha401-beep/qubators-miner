@@ -242,7 +242,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:24px}
       <div class="field"><label>Score (%) — auto-filled from quiz, editable</label><input type="text" id="fScore" placeholder="e.g. 87" oninput="renderCert()"></div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
         <button class="btn btn-gold" onclick="issueCert()">✅ Issue Certificate</button>
-        <button class="btn btn-ghost" onclick="window.print()">🖨️ Print / Save PDF</button>
+        <button class="btn btn-ghost" onclick="doPrint()">🖨️ Print / Save PDF</button>
       </div>
       <div id="verifyRow" style="display:none;gap:10px;margin-top:10px;flex-wrap:wrap">
         <input type="text" id="verifyLink" readonly style="flex:1;min-width:220px;padding:12px;border-radius:10px;border:1px solid var(--border);background:#0b0f14;color:var(--text);font-size:12px">
@@ -443,6 +443,12 @@ function verifyURL(code){
  let base=location.href.split('?')[0];
  base=base.slice(0,base.lastIndexOf('/')+1);
  return base+'verify.html?id='+encodeURIComponent(code);
+}
+function doPrint(){
+ try{
+  if(window.AndroidPrint&&window.AndroidPrint.print){window.AndroidPrint.print();return}
+ }catch(e){}
+ window.print();
 }
 function copyVerify(){
  const v=$('verifyLink').value;

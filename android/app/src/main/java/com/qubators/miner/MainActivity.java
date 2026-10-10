@@ -1,7 +1,10 @@
 package com.qubators.miner;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
+import android.print.PrintManager;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
@@ -43,7 +46,24 @@ public class MainActivity extends Activity {
         } else {
             wv.loadUrl(HOME);
         }
+        wv.addJavascriptInterface(new PrintBridge(), "AndroidPrint");
         setContentView(wv);
+    }
+
+    private class PrintBridge {
+        @JavascriptInterface
+        public void print() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    PrintManager pm = (PrintManager) getSystemService(Context.PRINT_SERVICE);
+                    if (pm != null) {
+                        pm.print("Qubators Certificate",
+                                wv.createPrintDocumentAdapter("QubatorsCertificate"), null);
+                    }
+                }
+            });
+        }
     }
 
     @Override
