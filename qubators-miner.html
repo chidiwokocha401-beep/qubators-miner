@@ -99,6 +99,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:24px}
     <button data-page="quiz">📝 Quiz</button>
     <button data-page="cert">🎓 Certificate</button>
     <button data-page="demo">🎬 Demo</button>
+    <button data-page="learned">📝 My Learning</button>
   </nav>
   <div style="display:flex;gap:8px;align-items:center">
     <span id="userChip" style="display:none;font-size:13px;color:var(--green);font-weight:700"></span>
@@ -283,6 +284,27 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:24px}
         <button class="btn btn-gold" onclick="go('cert')">🎓 4. Certificate</button>
       </div>
       <p style="margin-top:10px;font-size:13px;color:var(--muted)">Tip: the Quiz and Certificate need you to be logged in — it takes 10 seconds on the login screen.</p>
+    </div>
+  </section>
+
+  <section id="page-learned" class="page">
+    <div class="card" style="text-align:center">
+      <h2>📝 What Have You Learned?</h2>
+      <p>Tell us in your own words. It saves in this browser — and you can copy it anytime for your certificate, job, or school.</p>
+      <div style="margin-top:14px">
+        <textarea id="learnedText" rows="5" placeholder="e.g. I learned that cloud mining rents hash power instead of buying machines, and I spotted three scam red flags..." style="width:100%;min-width:260px;padding:14px;border-radius:12px;border:1px solid var(--border);background:#0b0f14;color:var(--text);font-size:14px;resize:vertical"></textarea>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px">
+        <button class="btn btn-gold" onclick="saveLearned()">💾 Save What I Learned</button>
+        <button class="btn btn-ghost" onclick="clearLearned()">🗑️ Clear</button>
+      </div>
+      <div id="learnedMsg" style="margin-top:10px;font-size:13px"></div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h2 style="margin-bottom:10px">💾 Your Saved Reflections</h2>
+      <div id="learnedList" style="display:flex;flex-direction:column;gap:8px"></div>
+      <p style="font-size:13px;color:var(--muted);margin-top:10px">Tip: copy any reflection into your CV, job application, or share with your trainer.</p>
     </div>
   </section>
 
@@ -553,7 +575,53 @@ async function installApp(){
 window.addEventListener('appinstalled',()=>{$('installBtn').style.display='none'});
 if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})})}
 
-renderLessons();sim();renderQ();renderCert();updateProgress();paintUser();
+// ---- What I Learned (reflection storage) ----
+let learnedList=JSON.parse(localStorage.getItem('qm_learned')||'[]');
+function renderLearned(){
+ const box=document.getElementById('learnedList');
+ if(!box)return;
+ box.innerHTML='';
+ var idx=learnedList.length-1;
+ for(var j=0;j<learnedList.length;j++){
+  var item=learnedList[idx-j];
+  var d=document.createElement('div');
+  d.className='card';
+  d.style.padding='12px 16px';
+  d.style.borderLeft="4px solid var(--gold)";
+  var inner='<div style="font-size:13px;color:#9aa6b5;margin-bottom:4px">'+item.date+'</div>';
+  inner+='<div style="font-size:14.5px">'+item.text+'</div>';
+  inner+='<div style="margin-top:8px"><button class="btn btn-ghost" onclick="copyLearned('+j+')" style="padding:6px 14px;font-size:12px">📋 Copy</button></div>';
+  d.innerHTML=inner;
+  box.appendChild(d);
+ }
+}
+function saveLearned(){
+ const t=document.getElementById('learnedText').value.trim();
+ const msg=document.getElementById('learnedMsg');
+ if(!t){msg.textContent='⚠️ Please write something before saving.';msg.style.color='var(--red)';return}
+ learnedList.push({text:t,date:new Date().toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'})});
+ localStorage.setItem('qm_learned',JSON.stringify(learnedList));
+ document.getElementById('learnedText').value='';
+ renderLearned();
+ msg.textContent='✅ Saved! Your reflection is kept in this browser.';
+ msg.style.color='var(--green)';
+}
+function clearLearned(){
+ if(!confirm('Clear all saved reflections?'))return;
+ learnedList=[];localStorage.removeItem('qm_learned');renderLearned();
+ document.getElementById('learnedMsg').textContent='🗑️ Cleared.';
+ document.getElementById('learnedMsg').style.color='var(--red)';
+}
+function copyLearned(i){
+ var item=learnedList[learnedList.length-1-i];
+ navigator.clipboard.writeText(item.text).then(function(){
+  var msg=document.getElementById('learnedMsg');
+  msg.textContent='📋 Copied: "'+item.text.slice(0,40)+'..."';
+  msg.style.color='var(--gold2)';
+ });
+}
+
+renderLessons();sim();renderQ();renderCert();renderLearned();updateProgress();paintUser();
 if(!currentUser)showAuth();
 </script>
 </body>
