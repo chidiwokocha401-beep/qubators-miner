@@ -23,6 +23,7 @@ textarea{resize:vertical;min-height:140px}
 .btn{display:inline-block;padding:12px 24px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;border:none;text-decoration:none;margin-top:12px}
 .btn-gold{background:#f5a623;color:#1a1206}
 .btn-ghost{background:transparent;color:#fff;border:1px solid #444}
+.btn:disabled{opacity:.6;cursor:not-allowed}
 #result{margin-top:16px;display:none;border-radius:14px;padding:22px;text-align:center}
 #result.sent{background:rgba(47,208,140,.1);border:2px solid #2fd08c}
 #result.fail{background:rgba(224,82,82,.1);border:2px solid #e05252}
@@ -41,32 +42,69 @@ footer{text-align:center;color:#9aa6b5;font-size:12px;padding:26px}
     <p>Share what you learned with Kingsley Chidi Wokocha — Head of Qubators Team.</p>
   </div>
   <div class="card">
-    <form id="learnForm" onsubmit="event.preventDefault(); sendMail();">
+    <form id="learnForm">
       <label for="sName">Your Name (optional)</label>
-      <input type="text" id="sName" placeholder="e.g. Adaeze Okafor">
+      <input type="text" id="sName" name="name" placeholder="e.g. Adaeze Okafor">
       <label for="sText">What did you learn?</label>
-      <textarea id="sText" placeholder="e.g. I learned that cloud mining rents hash power instead of buying machines, and I spotted three scam red flags..."></textarea>
-      <button class="btn btn-gold" type="submit">📧 Send by Email</button>
+      <textarea id="sText" name="message" placeholder="e.g. I learned that cloud mining rents hash power instead of buying machines, and I spotted three scam red flags..."></textarea>
+      <input type="hidden" name="subject" value="Qubators Miner — Learning Reflection">
+      <button class="btn btn-gold" type="submit" id="submitBtn">📧 Send to Kingsley</button>
       <button class="btn btn-ghost" type="button" onclick="location.href='qubators-miner.html'">Cancel</button>
     </form>
     <div id="result"></div>
   </div>
-  <p class="note">This opens your phone/computer email app with the message ready — tap Send to deliver it to Kingsley.</p>
+  <p class="note">Your reflection is sent directly to Kingsley’s inbox — no email app needed.</p>
 </div>
 <footer>Qubators Miner — Educational simulation only. © 2026 Qubators.</footer>
 <script>
-function sendMail(){
- const name=document.getElementById('sName').value.trim()||'A learner';
- const text=document.getElementById('sText').value.trim();
- const result=document.getElementById('result');
- if(!text){result.style.display='block';result.className='fail';result.innerHTML='<h2>⚠️ Please write what you learned.</h2>';return}
- const subject=encodeURIComponent('Qubators Miner — Learning Reflection from '+name);
- const body=encodeURIComponent('Hi Kingsley,\n\n'+name+' shared this from Qubators Miner:\n\n'+text+'\n\nSent via Qubators Miner app on '+new Date().toLocaleDateString());
- location.href='mailto:chidiwokocha401-beep@users.noreply.github.com?subject='+subject+'&body='+body;
- result.style.display='block';
- result.className='sent';
- result.innerHTML='<h2>✅ Email ready</h2><p>Your email app should open with the message. Tap <b>Send</b> to deliver it.</p>';
+// TODO: Replace YOUR_FORM_ID below with your real Formspree endpoint.
+// Get it free at https://formspree.io → New Form → copy the URL (looks like https://formspree.io/f/xvqwezbd)
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/YOUR_FORM_ID';
+
+async function sendMail(){
+  const name = document.getElementById('sName').value.trim() || 'A learner';
+  const text = document.getElementById('sText').value.trim();
+  const btn = document.getElementById('submitBtn');
+  const result = document.getElementById('result');
+  if (!text) {
+    result.style.display = 'block';
+    result.className = 'fail';
+    result.innerHTML = '<h2>⚠️ Please write what you learned.</h2>';
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  result.style.display = 'none';
+  try {
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('message', text);
+    const response = await fetch(FORMSPREE_ENDPOINT, {
+      method: 'POST',
+      body: formData,
+      headers: { 'Accept': 'application/json' }
+    });
+    if (response.ok) {
+      result.style.display = 'block';
+      result.className = 'sent';
+      result.innerHTML = '<h2>✅ Sent!</h2><p>Kingsley has received your learning reflection.</p>';
+      document.getElementById('learnForm').reset();
+    } else {
+      throw new Error('Formspree rejected');
+    }
+  } catch (e) {
+    result.style.display = 'block';
+    result.className = 'fail';
+    result.innerHTML = '<h2>❌ Failed to send.</h2><p>Please try again, or export your reflections as .txt and share manually.</p>';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '📧 Send to Kingsley';
+  }
 }
+document.getElementById('learnForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  sendMail();
+});
 </script>
 </body>
 </html>
