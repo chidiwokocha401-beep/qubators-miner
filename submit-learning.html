@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Send Your Learning to Kingsley — Qubators Miner</title>
+<meta name="theme-color" content="#0b0f14">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;background:#0b0f14;color:#eef2f7;min-height:100vh;line-height:1.6}
+a{color:#f5a623}
+.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:rgba(11,15,20,.95);border-bottom:1px solid #28303d}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px}
+.wrap{max-width:640px;margin:0 auto;padding:28px 18px 80px}
+.hero{text-align:center;padding:30px 10px}
+.hero h1{font-size:clamp(24px,5vw,36px);font-weight:900}
+.hero h1 em{color:#f5a623;font-style:normal}
+.hero p{color:#9aa6b5}
+.card{background:#151b23;border:1px solid #28303d;border-radius:16px;padding:24px;margin-top:16px}
+label{display:block;font-size:12.5px;color:#9aa6b5;margin-bottom:6px;font-weight:600}
+input,textarea{width:100%;padding:13px;border-radius:10px;border:1px solid #28303d;background:#0b0f14;color:#eef2f7;font-size:14px}
+textarea{resize:vertical;min-height:140px}
+.btn{display:inline-block;padding:12px 24px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;border:none;text-decoration:none;margin-top:12px}
+.btn-gold{background:#f5a623;color:#1a1206}
+.btn-ghost{background:transparent;color:#fff;border:1px solid #444}
+#result{margin-top:16px;display:none;border-radius:14px;padding:22px;text-align:center}
+#result.sent{background:rgba(47,208,140,.1);border:2px solid #2fd08c}
+#result.fail{background:rgba(224,82,82,.1);border:2px solid #e05252}
+.note{font-size:12px;color:#9aa6b5;margin-top:14px;text-align:center}
+footer{text-align:center;color:#9aa6b5;font-size:12px;padding:26px}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="logo">⛏️ Qubators Miner</div>
+  <a class="btn btn-ghost" style="padding:8px 16px" href="qubators-miner.html">← Back to App</a>
+</header>
+<div class="wrap">
+  <div class="hero">
+    <h1>📨 Send Your <em>Learning</em></h1>
+    <p>Share what you learned with Kingsley Chidi Wokocha — Head of Qubators Team.</p>
+  </div>
+  <div class="card">
+    <form id="learnForm" onsubmit="event.preventDefault(); sendMail();">
+      <label for="sName">Your Name (optional)</label>
+      <input type="text" id="sName" placeholder="e.g. Adaeze Okafor">
+      <label for="sText">What did you learn?</label>
+      <textarea id="sText" placeholder="e.g. I learned that cloud mining rents hash power instead of buying machines, and I spotted three scam red flags..."></textarea>
+      <button class="btn btn-gold" type="submit">📧 Send by Email</button>
+      <button class="btn btn-ghost" type="button" onclick="location.href='qubators-miner.html'">Cancel</button>
+    </form>
+    <div id="result"></div>
+  </div>
+  <p class="note">This opens your phone/computer email app with the message ready — tap Send to deliver it to Kingsley.</p>
+</div>
+<footer>Qubators Miner — Educational simulation only. © 2026 Qubators.</footer>
+<script>
+function sendMail(){
+ const name=document.getElementById('sName').value.trim()||'A learner';
+ const text=document.getElementById('sText').value.trim();
+ const result=document.getElementById('result');
+ if(!text){result.style.display='block';result.className='fail';result.innerHTML='<h2>⚠️ Please write what you learned.</h2>';return}
+ const subject=encodeURIComponent('Qubators Miner — Learning Reflection from '+name);
+ const body=encodeURIComponent('Hi Kingsley,\n\n'+name+' shared this from Qubators Miner:\n\n'+text+'\n\nSent via Qubators Miner app on '+new Date().toLocaleDateString());
+ location.href='mailto:chidiwokocha401-beep@users.noreply.github.com?subject='+subject+'&body='+body;
+ result.style.display='block';
+ result.className='sent';
+ result.innerHTML='<h2>✅ Email ready</h2><p>Your email app should open with the message. Tap <b>Send</b> to deliver it.</p>';
+}
+</script>
+</body>
+</html>
