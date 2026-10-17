@@ -297,6 +297,8 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:24px}
       <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px">
         <button class="btn btn-gold" onclick="saveLearned()">💾 Save What I Learned</button>
         <button class="btn btn-ghost" onclick="clearLearned()">🗑️ Clear</button>
+      <button class="btn btn-ghost" onclick="exportLearned()">📤 Export .txt</button>
+      <button class="btn btn-ghost" onclick="shareLearned()">📨 Share with Kingsley</button>
       </div>
       <div id="learnedMsg" style="margin-top:10px;font-size:13px"></div>
     </div>
@@ -305,6 +307,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:24px}
       <h2 style="margin-bottom:10px">💾 Your Saved Reflections</h2>
       <div id="learnedList" style="display:flex;flex-direction:column;gap:8px"></div>
       <p style="font-size:13px;color:var(--muted);margin-top:10px">Tip: copy any reflection into your CV, job application, or share with your trainer.</p>
+      <p style="font-size:12px;color:#666;background:rgba(245,166,35,.08);border-radius:8px;padding:10px;margin-top:10px;border-left:3px solid var(--gold)">🔒 Privacy: Your reflections stay only on this phone/browser. Kingsley cannot see them unless you export or share them yourself.</p>
     </div>
   </section>
 
@@ -577,6 +580,30 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.s
 
 // ---- What I Learned (reflection storage) ----
 let learnedList=JSON.parse(localStorage.getItem('qm_learned')||'[]');
+function exportLearned(){
+ if(learnedList.length===0){document.getElementById('learnedMsg').textContent='⚠️ Nothing saved yet.';document.getElementById('learnedMsg').style.color='var(--red)';return}
+ var text='Qubators Miner — My Learning Reflections\n\n';
+ learnedList.forEach(function(item,i){text+=(i+1)+'. ['+item.date+']\n'+item.text+'\n\n';});
+ var blob=new Blob([text],{type:'text/plain;charset=utf-8'});
+ var url=URL.createObjectURL(blob);
+ var a=document.createElement('a');a.href=url;a.download='qubators-miner-my-learning.txt';a.click();URL.revokeObjectURL(url);
+ document.getElementById('learnedMsg').textContent='📥 Downloaded my-learning.txt';
+ document.getElementById('learnedMsg').style.color='var(--green)';
+}
+function shareLearned(){
+ if(learnedList.length===0){document.getElementById('learnedMsg').textContent='⚠️ Nothing saved yet.';document.getElementById('learnedMsg').style.color='var(--red)';return}
+ var text='Hi Kingsley, here is what I learned from Qubators Miner:\n\n';
+ learnedList.forEach(function(item){text+='- ['+item.date+'] '+item.text+'\n';});
+ text+='\nSent from Qubators Miner app.';
+ var msg=encodeURIComponent(text);
+ var wa='https://wa.me/?text='+msg;
+ var mail='mailto:?subject=My Qubators Miner Learning&body='+msg;
+ if(/Android|webOS|iPhone|iPad|iPod/.test(navigator.userAgent)){
+  location.href=wa;
+ }else{
+  location.href=mail;
+ }
+}
 function renderLearned(){
  const box=document.getElementById('learnedList');
  if(!box)return;
